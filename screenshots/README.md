@@ -4,12 +4,14 @@ Visual reference for every page in the Finch app. Captured against the
 production build at `http://localhost:8765/` with the demo data set seeded via
 `FCStore.seedDemoData()` so screens are populated.
 
-- **Desktop** captures are 1440 × 900 (full-page, so each PNG is the entire
-  scrollable content, not just the viewport).
-- **Mobile** captures are 390 × 844 (iPhone 14 pro-ish portrait, **viewport only**
+- **Desktop** captures are 1440 × 900, **viewport-only** (not full-page).
+  The desktop shell has `position: sticky` chrome (sidebar with `height: 100vh`,
+  header with `top: 0`) that Playwright's scroll-and-stitch full-page mode
+  duplicates on tall pages — viewport-only avoids the stitching artifact.
+- **Mobile** captures are 390 × 844 (iPhone 14 pro-ish portrait), **viewport only**
   — the bottom tab bar is `position: fixed`, and Playwright's full-page mode
   doesn't reposition fixed elements for the expanded canvas, so viewport-only
-  captures the bar at the correct visual position).
+  captures the bar at the correct visual position.
 - **Auth** captures show the screens you see before signing in / before
   finishing onboarding / when the PIN lock kicks in.
 
