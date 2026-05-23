@@ -325,8 +325,8 @@ function GoalMiniCard({ goal, blurred }) {
 
 // ── Bill row ────────────────────────────────
 function BillRow({ bill, blurred, last }) {
-  const date = new Date(bill.date);
-  const today = new Date('2026-05-06');
+  const date = new Date(bill.nextDate || bill.date);
+  const today = new Date();
   const days = Math.round((date - today) / 86400000);
   return (
     <div style={{
