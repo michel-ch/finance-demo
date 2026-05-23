@@ -40,11 +40,14 @@ for the full diff and how to keep them in sync.
 
 ```
 Finance/
+├── README.md              # You are here
+├── .gitignore             # Excludes node_modules, test artifacts, Playwright caches
 ├── start.bat              # Single-command launcher
 ├── down.bat               # Stops the dev server on 8765 / 8766
 ├── master-spec.md         # Product source of truth
 ├── expense-app-plan.md    # Earlier rough plan; superseded by master-spec
 ├── export_UI/             # Original design mockups (read-only reference)
+├── screenshots/           # Visual gallery — every page, desktop and mobile
 ├── docs/                  # Developer reference — start at docs/README.md
 ├── tests/                 # Playwright suites
 └── webapp/                # The shipped app
@@ -60,7 +63,13 @@ Finance/
 
 ## Screens
 
-### Transactions, with real working filters and bulk actions
+### Accounts — multi-currency tiles, 30-day sparkline, type filter chips
+
+<p align="center">
+  <img src="screenshots/desktop/02-accounts.png" alt="Accounts" width="900">
+</p>
+
+### Transactions — search, account/category/date/currency filters, bulk select with Recategorize & Tag
 
 <p align="center">
   <img src="screenshots/desktop/04-transactions.png" alt="Transactions" width="900">
@@ -78,22 +87,28 @@ Finance/
   <img src="screenshots/desktop/07-goals.png" alt="Goals" width="900">
 </p>
 
+### Budgets — monthly envelopes with prev/next month, reset to zero, hard-cap badges
+
+<p align="center">
+  <img src="screenshots/desktop/08-budgets.png" alt="Budgets" width="900">
+</p>
+
 ### "Can I afford?" simulator — verdict, goal impact, save scenarios, add as planned tx
 
 <p align="center">
   <img src="screenshots/desktop/06-simulator.png" alt="Simulator" width="900">
 </p>
 
-### Mobile — same data, real bottom-tab navigation, working full-page Add screen
+### Mobile — bottom-tab nav, themed thin scrollbar, working full-page Add screen
 
 <p align="center">
-  <img src="screenshots/mobile/01-home.png" alt="Mobile home" width="240">
+  <img src="screenshots/mobile/01-home.png" alt="Mobile home" width="220">
   &nbsp;
-  <img src="screenshots/mobile/02-transactions.png" alt="Mobile activity" width="240">
+  <img src="screenshots/mobile/02-transactions.png" alt="Mobile activity" width="220">
   &nbsp;
-  <img src="screenshots/mobile/04-goals.png" alt="Mobile goals" width="240">
+  <img src="screenshots/mobile/04-goals.png" alt="Mobile goals" width="220">
   &nbsp;
-  <img src="screenshots/mobile/06-add.png" alt="Mobile add transaction" width="240">
+  <img src="screenshots/mobile/06-add.png" alt="Mobile add transaction" width="220">
 </p>
 
 The full gallery — 13 desktop pages, 6 mobile pages, 4 auth/onboarding screens —
