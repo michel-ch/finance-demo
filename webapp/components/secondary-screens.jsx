@@ -228,7 +228,7 @@ window.FC.BudgetsScreen = function BudgetsScreen({ blurred, data }) {
                   e.stopPropagation();
                   if (b.spent === 0) return;
                   if (!confirm('Reset progress for ' + (b.cat || 'this budget') + '? Transactions are kept; the bar restarts at 0.')) return;
-                  window.FCStore.update('budgets', b.id, { spent: 0 });
+                  window.FCStore.update('budgets', b.id, { _resetSpent: true });
                   window.dispatchEvent(new CustomEvent('fc:budget-saved'));
                 }}
                 disabled={b.spent === 0}
