@@ -12,11 +12,14 @@ build with mock-seeded data) — that share 99% of the source. See
 
 ```
 Finance/
+├── README.md                   # Top-level entrypoint with screenshot highlights
+├── .gitignore                  # Excludes node_modules, test artifacts, Playwright caches
 ├── master-spec.md              # Source of truth for product + design decisions
 ├── expense-app-plan.md         # Earlier rough plan; superseded by master-spec
 ├── start.bat                   # Single-command launcher
 ├── down.bat                    # Stops the dev server(s) on ports 8765 / 8766
 ├── export_UI/                  # Original design mockups (read-only reference)
+├── screenshots/                # Captured page screenshots — see screenshots/README.md
 ├── docs/                       # You are here
 ├── tests/                      # Playwright suites + reports
 └── webapp/                     # The shipped app

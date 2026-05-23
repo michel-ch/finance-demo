@@ -34,6 +34,9 @@ See [`demo-vs-production.md`](demo-vs-production.md) for the full contrast.
 | [`testing.md`](testing.md) | The 11 Playwright suites (143 tests), how to run them, what they cover |
 | [`roadmap.md`](roadmap.md) | What ships in v1, what's deferred, open questions |
 
+For a visual tour, see [`../screenshots/README.md`](../screenshots/README.md) —
+full-page captures of every desktop and mobile page in the app.
+
 ## One-paragraph summary
 
 The app loads in any modern browser. There is **no build step** — pages are plain HTML

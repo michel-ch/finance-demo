@@ -236,8 +236,13 @@ Self-contained — does not pull `desktop/page.js`. Renders:
 - A top bar with title + privacy-blur eye + theme toggle.
 - The active mobile screen (uses the inner `Mobile*` components from
   `mobile-screens.jsx`, **without** the demo phone frame).
-- A sticky bottom tab bar (Home / Activity / Forecast / Goals / More).
-- A FAB bottom-right that links to `add.html`.
+- A bottom tab bar pinned with `position: fixed` (Home / Activity / Forecast /
+  Goals / More) at `zIndex: 40`. Each `Mobile*` screen reserves a 96 px bottom
+  safe area on its outer container so list items don't disappear underneath.
+- A FAB bottom-right with `position: fixed` and `zIndex: 50` so it sits above
+  the tab bar; it links to `add.html`.
+- The `add` route renders only `MobileAddForm` — no top bar, no tab bar, no FAB —
+  so the full-page form has the viewport to itself.
 
 Cross-page nav uses real URLs (`home.html`, `transactions.html`, ...) so back/forward
 work and the auth guard re-runs on each navigation.

@@ -95,6 +95,10 @@ What ships in v1, what doesn't, and the open questions inherited from
 - Backup → Export JSON / Restore JSON / **Clear all data** (wipes user-data tables, keeps
   credentials + categories).
 - **Currency-in-use warning** when removing a currency tied to one or more accounts.
+- **Idle auto-lock**. `desktop/page.js` installs an idle watcher on
+  mousemove/keydown/click/scroll/touchstart; after `profile.idleLockMinutes` of no
+  activity, it sets the PIN-lock flag and redirects to `pin.html`. No-op unless both
+  a PIN and a non-zero `idleLockMinutes` are set.
 
 ### UX polish
 - Privacy blur (header eye + Cmd/Ctrl+B), persists per profile.
@@ -140,7 +144,6 @@ None are blockers for using the app.
   forecasting →" prompt at the bottom of the home dashboard after first onboarding is
   not surfaced.
 - **Right-click context menus** (§24). Transaction rows don't have a context menu yet.
-- **Idle auto-lock**. The setting persists but no timer enforces it.
 - **Toast system** (§22). Save flows close silently; a 2-second bottom-right toast
   per spec is not implemented.
 - **"View as table" chart fallback** (§21, §26). Charts have no non-chart fallback.
