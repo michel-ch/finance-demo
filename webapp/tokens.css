@@ -263,3 +263,22 @@ button { cursor: pointer; border: none; background: none; }
 .fc-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
 .fc-scroll::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 4px; }
 .fc-scroll::-webkit-scrollbar-track { background: transparent; }
+
+/* Document scrollbar — primarily affects mobile pages where the body itself
+   scrolls (desktop pages contain their scroll inside <main className="fc-scroll">).
+   Thin, transparent track, themed thumb that fades on hover. */
+html {
+  scrollbar-width: thin;                                /* Firefox */
+  scrollbar-color: var(--border-strong) transparent;    /* Firefox: thumb track */
+}
+html::-webkit-scrollbar { width: 6px; height: 6px; }
+html::-webkit-scrollbar-track { background: transparent; }
+html::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--text-tertiary) 50%, transparent);
+  border-radius: 999px;
+  transition: background 160ms var(--ease);
+}
+html::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+html::-webkit-scrollbar-corner { background: transparent; }
