@@ -50,20 +50,22 @@
 </div>
 <script src="auth.js"></script>
 <script>
-  if (FCAuth.isLoggedIn() && !FCAuth.isPinLocked()) location.replace('desktop/home.html');
+  if (FCAuth.isLoggedIn()) {
+    if (FCAuth.isPinLocked()) location.replace('pin.html');
+    else location.replace('desktop/home.html');
+  }
   document.getElementById('form').addEventListener('submit', function (e) {
     e.preventDefault();
     var email = document.getElementById('email').value.trim();
     var password = document.getElementById('password').value;
     var err = document.getElementById('err');
     err.textContent = '';
-    try {
-      FCAuth.login(email, password);
+    FCAuth.login(email, password).then(function () {
       var p = FCAuth.currentProfile();
       if (p && p.pin) location.replace('pin.html');
       else if (p && !p.onboarded) location.replace('desktop/onboarding.html');
       else location.replace('desktop/home.html');
-    } catch (ex) { err.textContent = ex.message; }
+    }).catch(function (ex) { err.textContent = ex.message; });
   });
 </script>
 </body>

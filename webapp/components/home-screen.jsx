@@ -150,7 +150,12 @@ function HeroBlock({ data, blurred, displayFont }) {
       <div style={{ marginTop: 4 }}>
         <Sparkline values={data.netWorthSpark} width={460} height={56} blurred={blurred} color="var(--accent)" />
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6, fontSize: 11, color: 'var(--text-tertiary)' }}>
-          <span>Feb 6</span><span>Mar 6</span><span>Apr 6</span><span>May 6</span>
+          {(() => {
+            const fmt = d => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            const now = new Date();
+            const at = days => { const d = new Date(now); d.setDate(d.getDate() - days); return d; };
+            return [90, 60, 30, 0].map(d => <span key={d}>{fmt(at(d))}</span>);
+          })()}
         </div>
       </div>
     </div>

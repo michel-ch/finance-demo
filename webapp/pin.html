@@ -44,8 +44,8 @@
 </div>
 <script src="auth.js"></script>
 <script>
-  if (!FCAuth.isLoggedIn()) location.replace('login.html');
-  if (!FCAuth.isPinLocked()) location.replace('desktop/home.html');
+  if (!FCAuth.isLoggedIn()) { location.replace('login.html'); }
+  else if (!FCAuth.isPinLocked()) { location.replace('desktop/home.html'); }
   var pin = '';
   function paint() {
     var dots = document.querySelectorAll('.dot');
@@ -61,13 +61,20 @@
     pin += ch;
     paint();
     if (pin.length === 4) {
-      if (FCAuth.verifyPin(pin)) {
-        FCAuth.setPinLocked(false);
-        location.replace('desktop/home.html');
-      } else {
-        document.getElementById('err').textContent = 'Wrong PIN.';
-        setTimeout(function () { pin = ''; paint(); document.getElementById('err').textContent = ''; }, 600);
-      }
+      var attempt = pin;
+      FCAuth.verifyPin(attempt).then(function (ok) {
+        if (ok) {
+          FCAuth.setPinLocked(false);
+          var prof = FCAuth.currentProfile();
+          location.replace(prof && !prof.onboarded ? 'desktop/onboarding.html' : 'desktop/home.html');
+        } else {
+          document.getElementById('err').textContent = 'Wrong PIN.';
+          setTimeout(function () { pin = ''; paint(); document.getElementById('err').textContent = ''; }, 600);
+        }
+      }).catch(function () {
+        document.getElementById('err').textContent = 'Unable to verify PIN on this page.';
+        setTimeout(function () { pin = ''; paint(); document.getElementById('err').textContent = ''; }, 1200);
+      });
     }
   });
   document.getElementById('out').addEventListener('click', function () {

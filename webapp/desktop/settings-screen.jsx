@@ -167,8 +167,9 @@
       var pin = prompt('Set 4-digit PIN (leave blank to remove):');
       if (pin === null) return;
       if (pin && !/^\d{4}$/.test(pin)) return alert('PIN must be 4 digits.');
-      window.FCAuth.setPin(pin || null);
-      setProfile(Object.assign({}, p, { pin: pin ? '***' : null }));
+      Promise.resolve(window.FCAuth.setPin(pin || null)).then(function () {
+        setProfile(Object.assign({}, p, { pin: pin ? '***' : null }));
+      });
     }
 
     function logout() {

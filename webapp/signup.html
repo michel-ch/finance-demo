@@ -85,19 +85,18 @@
     e.preventDefault();
     var err = document.getElementById('err');
     err.textContent = '';
-    try {
-      var actives = Array.from(document.querySelectorAll('#currs .chip[aria-pressed="true"]')).map(function (c) { return c.dataset.c; });
-      var base = document.getElementById('baseCurrency').value;
-      if (actives.indexOf(base) < 0) actives.unshift(base);
-      FCAuth.signup({
-        name: document.getElementById('name').value.trim(),
-        email: document.getElementById('email').value.trim(),
-        password: document.getElementById('password').value,
-        baseCurrency: base,
-        activeCurrencies: actives,
-      });
+    var actives = Array.from(document.querySelectorAll('#currs .chip[aria-pressed="true"]')).map(function (c) { return c.dataset.c; });
+    var base = document.getElementById('baseCurrency').value;
+    if (actives.indexOf(base) < 0) actives.unshift(base);
+    FCAuth.signup({
+      name: document.getElementById('name').value.trim(),
+      email: document.getElementById('email').value.trim(),
+      password: document.getElementById('password').value,
+      baseCurrency: base,
+      activeCurrencies: actives,
+    }).then(function () {
       location.replace('desktop/onboarding.html');
-    } catch (ex) { err.textContent = ex.message; }
+    }).catch(function (ex) { err.textContent = ex.message; });
   });
 </script>
 </body>

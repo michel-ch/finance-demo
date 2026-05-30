@@ -49,9 +49,31 @@ window.FC.TransactionsScreen = function TransactionsScreen({ blurred, density, d
     if (filterCategory !== 'all' && t.category !== filterCategory) return false;
     if (filterCurrency !== 'all' && t.currency !== filterCurrency) return false;
     if (!passesDate(t.date, filterDate)) return false;
-    if (search && !(t.merchant || '').toLowerCase().includes(search.toLowerCase())) return false;
+    if (search) {
+      const q = search.toLowerCase();
+      const hay = [
+        t.merchant || '',
+        t.description || '',
+        ...(Array.isArray(t.tags) ? t.tags : []),
+      ].join(' ').toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
     return true;
   });
+
+  // Prune selection to the currently visible rows so bulk actions never touch
+  // hidden transactions and the "N selected" counter matches what the user sees.
+  const visibleIds = React.useMemo(() => new Set(txs.map(t => t.id)), [txs]);
+  React.useEffect(() => {
+    if (selected.size === 0) return;
+    let changed = false;
+    const next = new Set();
+    selected.forEach(id => {
+      if (visibleIds.has(id)) next.add(id);
+      else changed = true;
+    });
+    if (changed) setSelected(next);
+  }, [visibleIds]);
 
   // Group by date
   const groups = {};

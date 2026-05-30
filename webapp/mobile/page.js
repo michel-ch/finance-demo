@@ -32,36 +32,53 @@
   }
 
   function buildLiveData(profile) {
+    // Demo build: fall back to window.FCData mock for any empty table so the design
+    // preview stays populated even before seedDemoData runs. Net worth + forecast
+    // still run through the real engine.
     var fc = window.FCStore;
     var mock = window.FCData || {};
-    var accounts    = fc.list('accounts');
-    var transactions = fc.list('transactions');
-    var goals       = fc.list('goals');
-    var budgets     = fc.list('budgets');
-    var recurring   = fc.list('recurring');
-    var holdings    = fc.list('holdings');
-    var categories  = fc.list('categories');
-
+    var base = profile.baseCurrency || 'EUR';
+    var accounts = fc.list('accounts'); if (!accounts.length) accounts = mock.accounts || [];
+    var holdings = fc.list('holdings'); if (!holdings.length) holdings = mock.holdings || [];
+    var cards = fc.list('cards'); if (!cards.length) cards = mock.cards || [];
+    var txns = fc.list('transactions'); if (!txns.length) txns = mock.transactions || [];
+    var goals = fc.list('goals'); if (!goals.length) goals = mock.goals || [];
+    var budgets = fc.list('budgets'); if (!budgets.length) budgets = mock.budgets || [];
+    var recurring = fc.list('recurring'); if (!recurring.length) recurring = mock.bills || mock.recurring || [];
+    var categories = fc.list('categories'); if (!categories.length) categories = mock.categories || [];
+    var accountTotal = accounts.reduce(function (s, a) {
+      return s + (a.balance || 0) * fc.getFxRate(a.currency || base, base);
+    }, 0);
+    var holdingsTotal = holdings.reduce(function (s, h) {
+      var px = h.price != null ? h.price : (h.avgCost || h.basis || 0);
+      return s + (h.qty || 0) * px * fc.getFxRate(h.currency || base, base);
+    }, 0);
+    var creditDebt = cards.reduce(function (s, c) {
+      if (c.kind !== 'credit') return s;
+      return s + (c.cycleSpend || 0) * fc.getFxRate(c.currency || base, base);
+    }, 0);
+    var netWorth = accountTotal + holdingsTotal - creditDebt;
     return {
       profile: {
         name: profile.name || 'You',
         initials: profile.initials || (profile.name || 'U').slice(0, 2).toUpperCase(),
-        baseCurrency: profile.baseCurrency || 'EUR',
+        baseCurrency: base,
         activeCurrencies: profile.activeCurrencies || ['EUR'],
       },
-      accounts: accounts.length ? accounts : mock.accounts || [],
-      transactions: transactions.length ? transactions : mock.transactions || [],
-      goals: goals.length ? goals : mock.goals || [],
-      budgets: budgets.length ? budgets : mock.budgets || [],
-      bills: recurring.length ? recurring : mock.bills || [],
-      holdings: holdings.length ? holdings : mock.holdings || [],
-      categories: categories.length ? categories : (mock.categories || []),
-      forecast: mock.forecast,
-      networthSpark: mock.netWorthSpark,
-      netWorthBase: mock.netWorthBase,
-      netWorthDelta: mock.netWorthDelta,
-      today: mock.today || new Date(),
-      profiles: mock.profiles,
+      accounts: accounts,
+      cards: cards,
+      transactions: txns,
+      goals: goals,
+      budgets: budgets,
+      bills: recurring,
+      holdings: holdings,
+      categories: categories,
+      forecast: fc.buildForecast({ days: 30, baseCurrency: base }),
+      netWorthSpark: mock.netWorthSpark || [],
+      netWorthBase: Math.round(netWorth * 100) / 100,
+      netWorthDelta: mock.netWorthDelta != null ? mock.netWorthDelta : 0,
+      today: new Date(),
+      profiles: [],
     };
   }
 
@@ -179,8 +196,46 @@
     }
 
     var profile = loadOpts();
-    // Demo build: seed full demo data on first run.
-    if (window.FCStore) FCStore.seedDemoData();
+    if (window.FCStore) {
+      FCStore.seedDemoData();
+      if (typeof FCStore.seedFxIfEmpty === 'function') FCStore.seedFxIfEmpty();
+      if (typeof FCStore.tickRecurring === 'function') FCStore.tickRecurring();
+    }
+
+    // Idle auto-lock — mirrors desktop so the Settings privacy control also protects
+    // mobile pages. No-op unless the profile has a PIN and idleLockMinutes > 0.
+    // Mobile pages live under /mobile/, so redirect up one level to pin.html.
+    (function setupIdleLock() {
+      var idleTimer = null;
+      var lastActivityAt = Date.now();
+      function lockNow() {
+        FCAuth.setPinLocked(true);
+        var prefix = location.pathname.indexOf('/mobile/') >= 0 ? '../' : '';
+        location.replace(prefix + 'pin.html');
+      }
+      function reset() {
+        lastActivityAt = Date.now();
+        if (idleTimer) { clearTimeout(idleTimer); idleTimer = null; }
+        var p = FCAuth.currentProfile() || {};
+        var mins = parseFloat(p.idleLockMinutes);
+        if (!p.pin || !mins || mins <= 0) return;
+        idleTimer = setTimeout(lockNow, mins * 60 * 1000);
+      }
+      function checkOnVisible() {
+        if (document.visibilityState !== 'visible') return;
+        var p = FCAuth.currentProfile() || {};
+        var mins = parseFloat(p.idleLockMinutes);
+        if (!p.pin || !mins || mins <= 0) return;
+        if (Date.now() - lastActivityAt >= mins * 60 * 1000) { lockNow(); return; }
+        reset();
+      }
+      ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(function (ev) {
+        document.addEventListener(ev, reset, { passive: true });
+      });
+      document.addEventListener('visibilitychange', checkOnVisible);
+      reset();
+    })();
+
     var data = buildLiveData(profile);
 
     function App() {
@@ -190,6 +245,16 @@
       var blurred = s[0], setBlurred = s[1];
       var ts = R.useState(document.documentElement.dataset.theme || 'dark');
       var theme = ts[0], setTheme = ts[1];
+      var ds = R.useState(data);
+      var liveData = ds[0], setLiveData = ds[1];
+
+      // Refresh after any in-page save so screens reflect new rows without a reload.
+      R.useEffect(function () {
+        function onSaved() { setLiveData(buildLiveData(FCAuth.currentProfile() || profile)); }
+        var events = ['fc:tx-saved', 'fc:account-saved', 'fc:card-saved', 'fc:goal-saved', 'fc:budget-saved', 'fc:recurring-saved', 'fc:holdings-changed'];
+        events.forEach(function (ev) { window.addEventListener(ev, onSaved); });
+        return function () { events.forEach(function (ev) { window.removeEventListener(ev, onSaved); }); };
+      }, []);
 
       function toggleTheme() {
         var next = theme === 'dark' ? 'light' : 'dark';
@@ -201,7 +266,7 @@
       var active = window.FC_ACTIVE || 'home';
       var screenProps = {
         blurred: blurred,
-        data: data,
+        data: liveData,
         displayFont: 'Geist',
         onNav: navigateTo,
         onTogglePrivacy: function () { setBlurred(function (b) { return !b; }); },
