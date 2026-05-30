@@ -157,28 +157,47 @@ window.FC.MobileHome = function MobileHome({ blurred, data, displayFont, onNav, 
         </div>
 
         {/* Forecast peek */}
-        <button onClick={() => onNav('forecast')} className="fc-card" style={{
-          padding: 16, borderRadius: 16, textAlign: 'left',
-          display: 'flex', alignItems: 'center', gap: 14,
-        }}>
-          <div style={{
-            width: 44, height: 44, borderRadius: 12,
-            background: 'var(--accent-tint)', color: 'var(--accent)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <Icon name="trend" size={22} />
-          </div>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 11, color: 'var(--text-tertiary)', fontWeight: 600, letterSpacing: '0.4px', textTransform: 'uppercase' }}>
-              30-day low
-            </div>
-            <MoneyDisplay amount={2840} currency="EUR" size="h2" blurred={blurred} />
-            <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>
-              On May 18, after Adobe + Free
-            </div>
-          </div>
-          <Icon name="chevron" size={16} color="var(--text-tertiary)" />
-        </button>
+        {(() => {
+          const proj30 = (data.forecast && data.forecast.projection || []).slice(0, 30);
+          const low = proj30.length
+            ? proj30.reduce((m, p) => p.v < m.v ? p : m, proj30[0])
+            : null;
+          const lowDate = low
+            ? new Date((data.today || new Date()).getTime() + low.d * 86400000)
+            : null;
+          return (
+            <button onClick={() => onNav('forecast')} className="fc-card" style={{
+              padding: 16, borderRadius: 16, textAlign: 'left',
+              display: 'flex', alignItems: 'center', gap: 14,
+            }}>
+              <div style={{
+                width: 44, height: 44, borderRadius: 12,
+                background: 'var(--accent-tint)', color: 'var(--accent)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <Icon name="trend" size={22} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 11, color: 'var(--text-tertiary)', fontWeight: 600, letterSpacing: '0.4px', textTransform: 'uppercase' }}>
+                  30-day low
+                </div>
+                {low ? (
+                  <>
+                    <MoneyDisplay amount={low.v} currency="EUR" size="h2" blurred={blurred} />
+                    <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>
+                      {lowDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </div>
+                  </>
+                ) : (
+                  <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 4 }}>
+                    Open Forecast to see projections.
+                  </div>
+                )}
+              </div>
+              <Icon name="chevron" size={16} color="var(--text-tertiary)" />
+            </button>
+          );
+        })()}
 
         {/* Accounts horizontal scroll */}
         <div>
@@ -187,6 +206,11 @@ window.FC.MobileHome = function MobileHome({ blurred, data, displayFont, onNav, 
             display: 'flex', gap: 10, overflowX: 'auto', padding: '0 0 4px',
             margin: '0 -20px', paddingLeft: 20, paddingRight: 20,
           }} className="fc-scroll">
+            {data.accounts.length === 0 && (
+              <div className="fc-card" style={{ padding: 14, borderRadius: 16, flex: 1, textAlign: 'center', fontSize: 12, color: 'var(--text-tertiary)' }}>
+                No accounts yet.
+              </div>
+            )}
             {data.accounts.map(acc => (
               <div key={acc.id} className="fc-card" style={{
                 padding: 14, borderRadius: 16, minWidth: 180, flex: 'none',
@@ -215,6 +239,11 @@ window.FC.MobileHome = function MobileHome({ blurred, data, displayFont, onNav, 
         <div>
           <SectionHeader title="Goals" actionLabel="All →" />
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {data.goals.length === 0 && (
+              <div className="fc-card" style={{ padding: 14, borderRadius: 16, textAlign: 'center', fontSize: 12, color: 'var(--text-tertiary)' }}>
+                No goals yet.
+              </div>
+            )}
             {data.goals.slice(0, 3).map(g => (
               <div key={g.id} className="fc-card" style={{
                 padding: 14, borderRadius: 16,
@@ -240,6 +269,11 @@ window.FC.MobileHome = function MobileHome({ blurred, data, displayFont, onNav, 
         <div>
           <SectionHeader title="Upcoming" subtitle="Next 5 days" actionLabel="All →" />
           <div className="fc-card" style={{ padding: 4, borderRadius: 16 }}>
+            {data.bills.length === 0 && (
+              <div style={{ padding: '16px 12px', textAlign: 'center', fontSize: 12, color: 'var(--text-tertiary)' }}>
+                No recurring bills yet.
+              </div>
+            )}
             {data.bills.slice(0, 4).map((b, i) => (
               <div key={b.id} style={{
                 padding: '10px 12px',
@@ -309,7 +343,7 @@ function SectionHeader({ title, subtitle, actionLabel }) {
 window.FC.MobileForecast = function MobileForecast({ blurred, data, onNav, chrome = true }) {
   const HORIZONS = [30, 60, 90, 365];
   const [horizon, setHorizon] = React.useState(30);
-  const projection = data.forecast.projection.slice(0, horizon);
+  const projection = ((data.forecast && data.forecast.projection) || []).slice(0, horizon);
   const lowest = projection.length
     ? projection.reduce((m, p) => p.v < m.v ? p : m, projection[0])
     : null;
@@ -389,9 +423,11 @@ window.FC.MobileForecast = function MobileForecast({ blurred, data, onNav, chrom
 
         <SectionHeader title="Upcoming events" subtitle="next 30 days" />
         <div className="fc-card" style={{ padding: 0, borderRadius: 16, overflow: 'hidden' }}>
-          {data.forecast.events.slice(0, 6).map((ev, i, arr) => {
-            const dt = new Date(data.today); dt.setDate(dt.getDate() + ev.d);
-            const positive = ev.amount > 0;
+          {((data.forecast && data.forecast.events) || []).slice(0, 6).map((ev, i, arr) => {
+            const dt = new Date(ev.date);
+            const today0 = new Date(data.today); today0.setHours(0, 0, 0, 0);
+            const daysOut = Math.round((dt - today0) / 86400000);
+            const positive = ev.a > 0;
             return (
               <div key={i} style={{
                 padding: '12px 14px',
@@ -403,12 +439,12 @@ window.FC.MobileForecast = function MobileForecast({ blurred, data, onNav, chrom
                   background: positive ? 'var(--positive)' : 'var(--accent)',
                 }} />
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 13, fontWeight: 500 }}>{ev.label}</div>
+                  <div style={{ fontSize: 13, fontWeight: 500 }}>{ev.n}</div>
                   <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
-                    {dt.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} · in {ev.d}d
+                    {dt.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} · in {daysOut}d
                   </div>
                 </div>
-                <MoneyDisplay amount={ev.amount} currency="EUR" size="small" colorize signed blurred={blurred} />
+                <MoneyDisplay amount={ev.a} currency="EUR" size="small" colorize signed blurred={blurred} />
               </div>
             );
           })}
@@ -425,7 +461,8 @@ function MobileForecastChart({ projection, history, blurred, today }) {
   const padT = 14, padB = 18, padL = 6, padR = 6;
   const innerH = h - padT - padB;
   const all = [...history.slice(-15), ...projection];
-  const split = 15;
+  if (all.length < 2) return null;
+  const split = Math.min(15, history.length);
   const min = Math.min(...all.map(p => p.v), 0);
   const max = Math.max(...all.map(p => p.v));
   const range = max - min || 1;
@@ -434,16 +471,20 @@ function MobileForecastChart({ projection, history, blurred, today }) {
   const X = i => padL + i * xStep;
 
   const histPath = all.slice(0, split).map((p, i) => `${i === 0 ? 'M' : 'L'}${X(i).toFixed(1)} ${Y(p.v).toFixed(1)}`).join(' ');
-  const projPath = all.slice(split - 1).map((p, i) => `${i === 0 ? 'M' : 'L'}${X(split - 1 + i).toFixed(1)} ${Y(p.v).toFixed(1)}`).join(' ');
-  const histArea = histPath + ` L${X(split - 1).toFixed(1)} ${Y(min).toFixed(1)} L${X(0).toFixed(1)} ${Y(min).toFixed(1)} Z`;
+  const projStart = Math.max(0, split - 1);
+  const projPath = all.slice(projStart).map((p, i) => `${i === 0 ? 'M' : 'L'}${X(projStart + i).toFixed(1)} ${Y(p.v).toFixed(1)}`).join(' ');
+  const histArea = histPath
+    ? histPath + ` L${X(split - 1).toFixed(1)} ${Y(min).toFixed(1)} L${X(0).toFixed(1)} ${Y(min).toFixed(1)} Z`
+    : '';
+  const todayPoint = all[projStart];
   return (
     <svg width="100%" viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" style={{ marginTop: 12, filter: blurred ? 'blur(6px)' : undefined }} shapeRendering="geometricPrecision">
-      <line x1={X(split - 1)} x2={X(split - 1)} y1={padT} y2={h - padB} stroke="var(--border)" strokeWidth="1" strokeDasharray="2 3" />
-      <text x={X(split - 1)} y={padT + 10} fontSize="9" fontWeight="600" fill="var(--text-tertiary)" textAnchor="middle">TODAY</text>
-      <path d={histArea} fill="var(--accent-tint)" />
-      <path d={histPath} fill="none" stroke="var(--accent)" strokeWidth="1.5" strokeLinejoin="miter" strokeLinecap="butt" />
+      <line x1={X(projStart)} x2={X(projStart)} y1={padT} y2={h - padB} stroke="var(--border)" strokeWidth="1" strokeDasharray="2 3" />
+      <text x={X(projStart)} y={padT + 10} fontSize="9" fontWeight="600" fill="var(--text-tertiary)" textAnchor="middle">TODAY</text>
+      {histArea && <path d={histArea} fill="var(--accent-tint)" />}
+      {histPath && <path d={histPath} fill="none" stroke="var(--accent)" strokeWidth="1.5" strokeLinejoin="miter" strokeLinecap="butt" />}
       <path d={projPath} fill="none" stroke="var(--accent)" strokeWidth="1.5" strokeDasharray="3 2" strokeLinejoin="miter" strokeLinecap="butt" strokeOpacity="0.95" />
-      <circle cx={X(split - 1)} cy={Y(all[split - 1].v)} r="3.5" fill="var(--surface)" stroke="var(--accent)" strokeWidth="1.5" />
+      {todayPoint && <circle cx={X(projStart)} cy={Y(todayPoint.v)} r="3.5" fill="var(--surface)" stroke="var(--accent)" strokeWidth="1.5" />}
     </svg>
   );
 }
@@ -505,6 +546,13 @@ window.FC.MobileTransactions = function MobileTransactions({ blurred, data, onNa
       </div>
 
       <div style={{ padding: '0 0 100px' }}>
+        {dates.length === 0 && (
+          <div className="fc-card" style={{ margin: '8px 20px', padding: 24, borderRadius: 16, textAlign: 'center' }}>
+            <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
+              No transactions yet. Tap + to add one.
+            </div>
+          </div>
+        )}
         {dates.map(date => {
           const dt = new Date(date);
           return (
@@ -754,6 +802,14 @@ window.FC.MobileGoals = function MobileGoals({ blurred, data, onNav }) {
           {data.goals.length} active · {blurred ? '••••' : formatMoney(totalCommitted, 'EUR')} of {blurred ? '••••' : formatMoney(totalTarget, 'EUR')} committed
         </div>
       </div>
+
+      {data.goals.length === 0 && (
+        <div className="fc-card" style={{ padding: 24, borderRadius: 16, textAlign: 'center' }}>
+          <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
+            No goals yet. Create one from the desktop Goals page.
+          </div>
+        </div>
+      )}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         {data.goals.map(g => {

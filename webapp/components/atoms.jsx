@@ -257,6 +257,7 @@ FC.Icon = function Icon({ name, size = 20, color = 'currentColor', strokeWidth =
     drop:        <><path d="M12 3s7 7.5 7 12a7 7 0 0 1-14 0c0-4.5 7-12 7-12Z"/></>,
     'box':       <><path d="M3 7 12 3l9 4v10l-9 4-9-4V7Z"/><path d="m3 7 9 4 9-4M12 11v10"/></>,
     trash:       <><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M6 6v14a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V6"/><path d="M10 11v6M14 11v6"/></>,
+    shield:      <><path d="M12 3l7 3v6c0 4-3 7-7 8-4-1-7-4-7-8V6l7-3Z"/></>,
     x:           <><path d="M18 6 6 18M6 6l12 12"/></>,
   };
   return (

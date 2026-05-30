@@ -13,9 +13,19 @@ window.FC.ForecastScreen = function ForecastScreen({ blurred, data, displayFont 
 
   const horizons = [30, 60, 90, 180, 365];
 
-  const fHistory = (data.forecast && data.forecast.history) || [];
-  const fProjection = (data.forecast && data.forecast.projection) || [];
-  const fEvents = (data.forecast && data.forecast.events) || [];
+  // Rebuild projection whenever toggles or horizon change so per-account toggles
+  // actually re-aggregate from the engine instead of fake-scaling the whole line.
+  const selectedIds = Object.keys(activeAccounts).filter(id => activeAccounts[id]);
+  const baseCurrency = (data.profile && data.profile.baseCurrency) || 'EUR';
+  const live = React.useMemo(
+    () => (window.FCStore && typeof window.FCStore.buildForecast === 'function'
+            ? window.FCStore.buildForecast({ days: horizon, accountIds: selectedIds, baseCurrency })
+            : (data.forecast || { history: [], projection: [], events: [] })),
+    [horizon, selectedIds.join(','), baseCurrency]
+  );
+  const fHistory = live.history || [];
+  const fProjection = live.projection || [];
+  const fEvents = live.events || [];
 
   if (!data.accounts.length || !fProjection.length) {
     return (
@@ -38,14 +48,10 @@ window.FC.ForecastScreen = function ForecastScreen({ blurred, data, displayFont 
     );
   }
 
-  // build forecast points filtered by horizon and by accounts (mock: just scale)
-  const accountFactor = data.accounts.length
-    ? Object.values(activeAccounts).filter(Boolean).length / data.accounts.length
-    : 0;
-  const history = fHistory.map(p => ({ ...p, v: p.v * accountFactor }));
-  const projection = fProjection
-    .filter(p => p.d <= horizon)
-    .map(p => ({ ...p, v: p.v * accountFactor }));
+  // Projection is already pre-filtered by horizon and account selection in
+  // FCStore.buildForecast above. History is unused until snapshots exist.
+  const history = fHistory;
+  const projection = fProjection;
 
   // apply simulation
   const simProjection = sim.enabled
@@ -106,6 +112,7 @@ window.FC.ForecastScreen = function ForecastScreen({ blurred, data, displayFont 
           <ForecastChart
             history={history}
             projection={projection}
+            events={fEvents}
             simProjection={simProjection}
             sim={sim}
             blurred={blurred}
@@ -113,7 +120,7 @@ window.FC.ForecastScreen = function ForecastScreen({ blurred, data, displayFont 
             horizon={horizon}
           />
           {/* Simulator */}
-          <SimulatorBar sim={sim} setSim={setSim} lowest={lowest} lowestSim={lowestSim} blurred={blurred} />
+          <SimulatorBar sim={sim} setSim={setSim} lowest={lowest} lowestSim={lowestSim} blurred={blurred} horizon={horizon} />
         </div>
 
         {/* Right rail: per-account toggles + event list */}
@@ -157,12 +164,14 @@ window.FC.ForecastScreen = function ForecastScreen({ blurred, data, displayFont 
               <div style={{ fontSize: 11, color: 'var(--text-tertiary)', fontWeight: 600, letterSpacing: '0.6px', textTransform: 'uppercase' }}>
                 Upcoming events
               </div>
-              <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>{data.forecast.events.filter(e => e.d <= horizon).length} in horizon</span>
+              <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>{fEvents.length} in horizon</span>
             </div>
             <div className="fc-scroll" style={{ overflow: 'auto', maxHeight: 320 }}>
-              {data.forecast.events.filter(e => e.d <= horizon).map((ev, i) => {
-                const dt = new Date(data.today); dt.setDate(dt.getDate() + ev.d);
-                const positive = ev.amount > 0;
+              {fEvents.map((ev, i) => {
+                const dt = new Date(ev.date);
+                const today0 = new Date(data.today); today0.setHours(0,0,0,0);
+                const daysOut = Math.round((dt - today0) / 86400000);
+                const positive = ev.a > 0;
                 return (
                   <div key={i} style={{
                     padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 12,
@@ -173,12 +182,12 @@ window.FC.ForecastScreen = function ForecastScreen({ blurred, data, displayFont 
                       background: positive ? 'var(--positive)' : 'var(--accent)',
                     }} />
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 12, fontWeight: 500 }}>{ev.label}</div>
+                      <div style={{ fontSize: 12, fontWeight: 500 }}>{ev.n}</div>
                       <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
-                        {dt.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} · in {ev.d}d
+                        {dt.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} · in {daysOut}d
                       </div>
                     </div>
-                    <MoneyDisplay amount={ev.amount} currency="EUR" size="small" colorize signed blurred={blurred} />
+                    <MoneyDisplay amount={ev.a} currency={baseCurrency} size="small" colorize signed blurred={blurred} />
                   </div>
                 );
               })}
@@ -228,14 +237,16 @@ function Legend({ swatch, label }) {
 // ──────────────────────────────────────────────────────────
 // Main forecast chart
 
-function ForecastChart({ history, projection, simProjection, sim, blurred, today, horizon }) {
+function ForecastChart({ history, projection, events, simProjection, sim, blurred, today, horizon }) {
   const w = 800, h = 320;
   const padL = 56, padR = 16, padT = 16, padB = 32;
   const innerW = w - padL - padR, innerH = h - padT - padB;
 
   const all = [...history, ...projection];
-  // band: ±15% of projection from history's last value
-  const histLast = history[history.length - 1].v;
+  // Band: variance around projection. Anchor on history's last value when present,
+  // otherwise on projection's first value (case for a fresh user with no snapshots).
+  const histLast = history.length ? history[history.length - 1].v
+                  : (projection[0] ? projection[0].v : 0);
   const band = projection.map(p => {
     const drift = p.d / horizon;
     const spread = histLast * 0.04 * Math.sqrt(p.d);
@@ -269,8 +280,10 @@ function ForecastChart({ history, projection, simProjection, sim, blurred, today
     return `${i === 0 ? 'M' : 'L'}${x.toFixed(1)} ${y.toFixed(1)}`;
   }).join(' ');
 
-  // history area
-  const histArea = histPath + ` L${X(history[history.length-1].d).toFixed(1)} ${Y(yMin).toFixed(1)} L${X(history[0].d).toFixed(1)} ${Y(yMin).toFixed(1)} Z`;
+  // History area (skipped entirely when there is no history).
+  const histArea = history.length
+    ? histPath + ` L${X(history[history.length-1].d).toFixed(1)} ${Y(yMin).toFixed(1)} L${X(history[0].d).toFixed(1)} ${Y(yMin).toFixed(1)} Z`
+    : '';
 
   // band area
   const bandArea = (() => {
@@ -292,8 +305,16 @@ function ForecastChart({ history, projection, simProjection, sim, blurred, today
   const xTicks = [];
   for (let d = -Math.floor(history.length / xTickStep) * xTickStep; d <= horizon; d += xTickStep) xTicks.push(d);
 
-  // events within projection
-  const eventsInWindow = projection.filter(p => p.event);
+  // events within projection — map each engine event (keyed by ISO date) onto its
+  // projection day-offset and running value so the marker sits on the line. Live
+  // events are { date, t, n, a }; the old mock attached a `.event` to projection
+  // rows, which the real engine no longer produces.
+  const projByDate = {};
+  projection.forEach(p => { projByDate[p.date] = p; });
+  const eventsInWindow = (events || []).map(ev => {
+    const p = projByDate[ev.date];
+    return p ? { d: p.d, v: p.v, amount: ev.a, label: ev.n } : null;
+  }).filter(Boolean);
 
   // zero zone
   const showZeroZone = yMin < 0;
@@ -335,9 +356,13 @@ function ForecastChart({ history, projection, simProjection, sim, blurred, today
         <line x1={X(0)} x2={X(0)} y1={padT} y2={h - padB} stroke="var(--text-tertiary)" strokeOpacity="0.5" strokeWidth="1" strokeDasharray="2 4" />
         <text x={X(0) + 6} y={padT + 12} fontSize="10" fill="var(--text-tertiary)" fontWeight="600">TODAY</text>
 
-        {/* history area + line */}
-        <path d={histArea} fill="var(--accent-tint)" shapeRendering="geometricPrecision" />
-        <path d={histPath} fill="none" stroke="var(--accent)" strokeWidth="1.5" strokeLinejoin="miter" strokeLinecap="butt" shapeRendering="geometricPrecision" />
+        {/* history area + line (omitted when no history snapshot exists yet) */}
+        {history.length > 0 && (
+          <>
+            <path d={histArea} fill="var(--accent-tint)" shapeRendering="geometricPrecision" />
+            <path d={histPath} fill="none" stroke="var(--accent)" strokeWidth="1.5" strokeLinejoin="miter" strokeLinecap="butt" shapeRendering="geometricPrecision" />
+          </>
+        )}
 
         {/* projection band */}
         <path d={bandArea} fill="var(--forecast-band)" />
@@ -353,12 +378,12 @@ function ForecastChart({ history, projection, simProjection, sim, blurred, today
         {/* event markers */}
         {eventsInWindow.map((p, i) => {
           const x = X(p.d), y = Y(p.v);
-          const isIncome = p.event.amount > 0;
+          const isIncome = p.amount > 0;
           return (
             <g key={i}>
               <line x1={x} x2={x} y1={y} y2={h - padB} stroke="var(--text-tertiary)" strokeOpacity="0.18" strokeWidth="1" />
               <circle cx={x} cy={y} r="4" fill="var(--surface)" stroke={isIncome ? 'var(--positive)' : 'var(--accent)'} strokeWidth="1.75" />
-              <text x={x} y={y - 9} fontSize="9.5" fill="var(--text-secondary)" textAnchor="middle" fontWeight="500">{p.event.label}</text>
+              <text x={x} y={y - 9} fontSize="9.5" fill="var(--text-secondary)" textAnchor="middle" fontWeight="500">{p.label}</text>
             </g>
           );
         })}
@@ -377,8 +402,9 @@ function ForecastChart({ history, projection, simProjection, sim, blurred, today
           );
         })()}
 
-        {/* today dot on projection */}
-        <circle cx={X(0)} cy={Y(history[history.length-1].v)} r="4.5" fill="var(--surface)" stroke="var(--accent)" strokeWidth="2" />
+        {/* today dot on projection — anchors on history's last value when present,
+            otherwise on projection's first value (today). */}
+        <circle cx={X(0)} cy={Y(histLast)} r="4.5" fill="var(--surface)" stroke="var(--accent)" strokeWidth="2" />
       </svg>
     </div>
   );
@@ -387,7 +413,7 @@ function ForecastChart({ history, projection, simProjection, sim, blurred, today
 // ──────────────────────────────────────────────────────────
 // Simulator bar
 
-function SimulatorBar({ sim, setSim, lowest, lowestSim, blurred }) {
+function SimulatorBar({ sim, setSim, lowest, lowestSim, blurred, horizon }) {
   return (
     <div style={{
       borderTop: '1px solid var(--border)',

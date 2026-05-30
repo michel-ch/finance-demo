@@ -172,7 +172,7 @@ window.FC.AddTransactionModal = function AddTransactionModal() {
     const cat = categories.find(function (c) { return c.id === categoryId; });
 
     const signed = sign === '-' ? -Math.abs(numeric) : Math.abs(numeric);
-    const fxRate = 1; // FX provider not wired in v1 — snapshot 1:1 per spec note.
+    const fxRate = window.FCStore.getFxRate(currency, baseCurrency);
     const amountBase = currency === baseCurrency ? signed : signed * fxRate;
 
     const baseSnapshot = {
@@ -203,7 +203,8 @@ window.FC.AddTransactionModal = function AddTransactionModal() {
 
     if (isTransfer) {
       const dest = accounts.find(function (a) { return a.id === transferToAccountId; });
-      const pairId = 'pair_' + Math.random().toString(36).slice(2, 10);
+      const existingPair = editId ? FC.get('transactions', editId) : null;
+      const pairId = (existingPair && existingPair.transferPairId) || ('pair_' + Math.random().toString(36).slice(2, 10));
       const out = Object.assign({}, baseSnapshot, {
         amount: -Math.abs(numeric),
         amountOriginal: -Math.abs(numeric),
@@ -228,9 +229,14 @@ window.FC.AddTransactionModal = function AddTransactionModal() {
       });
 
       if (editId) {
-        // For transfers in edit mode we update the source row only — pairing of legacy
-        // transfers may not exist, so we don't try to rewrite the (possibly missing) pair.
         FC.update('transactions', editId, out);
+        // Keep the paired inflow leg in sync. Find it by the shared pairId; a legacy
+        // transfer that never had a pair gets its missing leg created now.
+        const mate = FC.list('transactions').find(function (t) {
+          return t.transferPairId === pairId && t.id !== editId;
+        });
+        if (mate) FC.update('transactions', mate.id, inn);
+        else FC.create('transactions', inn);
       } else {
         FC.create('transactions', out);
         FC.create('transactions', inn);

@@ -16,8 +16,7 @@ window.FC.AccountsScreen = function AccountsScreen({ blurred, data }) {
   });
   const visibleNonArchived = data.accounts.filter(a => !a.archived);
   const total = visibleNonArchived.reduce((s, a) => {
-    const fx = a.currency === 'USD' ? 0.92 : a.currency === 'GBP' ? 1.17 : 1;
-    return s + a.balance * fx;
+    return s + a.balance * window.FCStore.getFxRate(a.currency, baseCurrency);
   }, 0);
 
   return (
@@ -187,8 +186,8 @@ window.FC.BudgetsScreen = function BudgetsScreen({ blurred, data }) {
           </div>
         )}
         {monthlyBudgets.map((b, i) => {
-          const pct = b.spent / b.budget;
-          const over = b.spent > b.budget;
+          const pct = b.budget ? b.spent / b.budget : 0;
+          const over = b.budget > 0 && b.spent > b.budget;
           return (
             <div key={b.id} style={{
               padding: '14px 20px',
@@ -288,14 +287,21 @@ window.FC.RecurringScreen = function RecurringScreen({ blurred, data }) {
   }
 
   const annualized = recurring.reduce((s, r) => {
-    const mult = r.freq === 'monthly' ? 12 : r.freq === 'weekly' ? 52 : r.freq === 'yearly' ? 1 : 12;
-    return s + (r.amount || 0) * mult;
+    const mult = r.freq === 'daily' ? 365
+               : r.freq === 'weekly' ? 52
+               : r.freq === 'yearly' ? 1
+               : 12; // monthly + custom + anything else
+    return s + (r.direction === 'in' ? -1 : 1) * (r.amount || 0) * mult;
   }, 0);
 
+  // Group by frequency; anything we don't have a dedicated bucket for
+  // (daily, custom, unknown) lands in "other" so it stays visible.
   const groups = {
     monthly: recurring.filter(r => r.freq === 'monthly'),
     yearly: recurring.filter(r => r.freq === 'yearly'),
     weekly: recurring.filter(r => r.freq === 'weekly'),
+    daily: recurring.filter(r => r.freq === 'daily'),
+    other: recurring.filter(r => ['monthly','yearly','weekly','daily'].indexOf(r.freq) === -1),
   };
 
   return (
@@ -324,8 +330,12 @@ window.FC.RecurringScreen = function RecurringScreen({ blurred, data }) {
           </div>
           <div className="fc-card" style={{ padding: 0, overflow: 'hidden' }}>
             {rules.map((r, i) => {
-              const fx = r.currency === 'USD' ? 0.92 : 1;
-              const annual = r.amount * (r.freq === 'monthly' ? 12 : r.freq === 'weekly' ? 52 : 1) * fx;
+              const fx = window.FCStore.getFxRate(r.currency, baseCurrency);
+              const annMult = r.freq === 'daily' ? 365
+                            : r.freq === 'weekly' ? 52
+                            : r.freq === 'yearly' ? 1
+                            : 12;
+              const annual = r.amount * annMult * fx;
               return (
                 <div key={r.id} style={{
                   padding: '12px 16px',
@@ -352,7 +362,7 @@ window.FC.RecurringScreen = function RecurringScreen({ blurred, data }) {
                     justifySelf: 'start',
                   }}>≈ {blurred ? '••••' : formatMoney(annual, 'EUR')}/yr</span>
                   <div style={{ textAlign: 'right' }}>
-                    <MoneyDisplay amount={-r.amount} currency={r.currency} size="body" colorize blurred={blurred} />
+                    <MoneyDisplay amount={(r.direction === 'in' ? 1 : -1) * r.amount} currency={r.currency} size="body" colorize blurred={blurred} />
                   </div>
                 </div>
               );
@@ -413,12 +423,10 @@ window.FC.InvestmentsScreen = function InvestmentsScreen({ blurred, data, displa
   }));
 
   const totalValue = holdings.reduce((s, h) => {
-    const fx = h.currency === 'USD' ? 0.92 : 1;
-    return s + h.qty * h.price * fx;
+    return s + h.qty * h.price * window.FCStore.getFxRate(h.currency, baseCurrency);
   }, 0);
   const totalBasis = holdings.reduce((s, h) => {
-    const fx = h.currency === 'USD' ? 0.92 : 1;
-    return s + h.qty * h.basis * fx;
+    return s + h.qty * h.basis * window.FCStore.getFxRate(h.currency, baseCurrency);
   }, 0);
   const pl = totalValue - totalBasis;
   const plPct = pl / totalBasis;
@@ -503,7 +511,7 @@ window.FC.InvestmentsScreen = function InvestmentsScreen({ blurred, data, displa
           <span style={{textAlign:'right'}}>Value</span><span style={{textAlign:'right'}}>P/L</span>
         </div>
         {holdings.map((h, i) => {
-          const fx = h.currency === 'USD' ? 0.92 : 1;
+          const fx = window.FCStore.getFxRate(h.currency, baseCurrency);
           const value = h.qty * h.price * fx;
           const pl = h.qty * (h.price - h.basis) * fx;
           const priceChangePct = h.basis ? (h.price - h.basis) / h.basis : 0;
@@ -553,7 +561,7 @@ function exportHoldings(holdings, baseCurrency) {
     return s;
   }
   const rows = holdings.map(h => {
-    const fx = h.currency === 'USD' ? 0.92 : 1;
+    const fx = window.FCStore.getFxRate(h.currency, baseCurrency);
     const costBasis = h.qty * h.basis * fx;
     const value = h.qty * h.price * fx;
     const pl = value - costBasis;

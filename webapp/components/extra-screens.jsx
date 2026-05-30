@@ -344,19 +344,29 @@ function CreditCardTile({ card, blurred }) {
         <div>
           <div style={{ fontSize: 9, opacity: 0.55, fontWeight: 600, letterSpacing: '0.5px', textTransform: 'uppercase' }}>Cycle spend</div>
           <div className="tabular" style={{ fontSize: 18, fontWeight: 600, filter: blurred ? 'blur(6px)' : undefined }}>
-            {formatMoney(card.cycleSpend, 'EUR')}
+            {formatMoney(card.cycleSpend || 0, 'EUR')}
           </div>
-          <div style={{ fontSize: 10, opacity: 0.6 }}>of {formatMoney(card.limit, 'EUR')} limit</div>
+          <div style={{ fontSize: 10, opacity: 0.6 }}>of {formatMoney(card.limit || card.creditLimit || 0, 'EUR')} limit</div>
         </div>
         <div style={{ textAlign: 'right' }}>
           <div style={{ fontSize: 9, opacity: 0.55, fontWeight: 600, letterSpacing: '0.5px', textTransform: 'uppercase' }}>Settles</div>
-          <div style={{ fontSize: 13, fontWeight: 600 }}>{new Date(card.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
+          <div style={{ fontSize: 13, fontWeight: 600 }}>
+            {card.dueDate ? new Date(card.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—'}
+          </div>
         </div>
       </div>
-      {/* Utilization bar */}
-      <div style={{ position: 'absolute', left: 20, right: 20, bottom: 8, height: 3, background: 'rgba(255,255,255,0.1)', borderRadius: 2 }}>
-        <div style={{ width: `${card.utilization * 100}%`, height: '100%', background: card.utilization > 0.7 ? 'var(--negative)' : '#fff', borderRadius: 2 }} />
-      </div>
+      {/* Utilization bar - derive from cycle spend + limit when the explicit field is absent. */}
+      {(() => {
+        const lim = card.limit || card.creditLimit || 0;
+        const util = card.utilization != null
+          ? card.utilization
+          : (lim > 0 ? Math.min(1, (card.cycleSpend || 0) / lim) : 0);
+        return (
+          <div style={{ position: 'absolute', left: 20, right: 20, bottom: 8, height: 3, background: 'rgba(255,255,255,0.1)', borderRadius: 2 }}>
+            <div style={{ width: `${util * 100}%`, height: '100%', background: util > 0.7 ? 'var(--negative)' : '#fff', borderRadius: 2 }} />
+          </div>
+        );
+      })()}
     </div>
   );
 }
@@ -372,7 +382,7 @@ function DebitCardTile({ card, blurred }) {
       </div>
       <div style={{ textAlign: 'right' }}>
         <div style={{ fontSize: 10, color: 'var(--text-tertiary)', fontWeight: 600, letterSpacing: '0.4px', textTransform: 'uppercase' }}>This month</div>
-        <MoneyDisplay amount={-card.cycleSpend} currency="EUR" size="body" colorize blurred={blurred} />
+        <MoneyDisplay amount={-(card.cycleSpend || 0)} currency="EUR" size="body" colorize blurred={blurred} />
       </div>
     </div>
   );
@@ -625,7 +635,8 @@ window.FC.SimulatorScreen = function SimulatorScreen({ data, blurred, displayFon
             <div style={{ fontSize: 11, color: 'var(--text-tertiary)', fontWeight: 600, letterSpacing: '0.5px', textTransform: 'uppercase', marginBottom: 12 }}>Impact on goals</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {goalsImpact.map(g => {
-                const slip = Math.round(amount / g.contribMonthly * 30);
+                const hasContrib = g.contribMonthly > 0;
+                const slip = hasContrib ? Math.round(amount / g.contribMonthly * 30) : 0;
                 return (
                   <div key={g.id} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                     <div style={{
@@ -635,10 +646,14 @@ window.FC.SimulatorScreen = function SimulatorScreen({ data, blurred, displayFon
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 13, fontWeight: 500 }}>{g.title}</div>
                       <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
-                        Slips by ~{slip} days · still {new Date(g.deadline).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                        {hasContrib
+                          ? <>Slips by ~{slip} days · still {new Date(g.deadline).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</>
+                          : <>No monthly contribution set</>}
                       </div>
                     </div>
-                    <span className="tabular" style={{ fontSize: 12, fontWeight: 600, color: 'var(--warning)' }}>+{slip}d</span>
+                    <span className="tabular" style={{ fontSize: 12, fontWeight: 600, color: 'var(--warning)' }}>
+                      {hasContrib ? '+' + slip + 'd' : '—'}
+                    </span>
                   </div>
                 );
               })}
@@ -668,7 +683,8 @@ window.FC.SimulatorScreen = function SimulatorScreen({ data, blurred, displayFon
                   if (!confirm(`Create a monthly recurring rule of ${formatMoney(amount, 'EUR')} starting ${date}?`)) return;
                   window.FCStore.create('recurring', {
                     name: `Simulator: ${formatMoney(amount, 'EUR')}`,
-                    amount: -Math.abs(amount),
+                    amount: Math.abs(amount),
+                    direction: 'out',
                     currency: 'EUR',
                     freq: 'monthly',
                     nextDate: date,

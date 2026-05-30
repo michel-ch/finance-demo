@@ -69,19 +69,41 @@
     return parseFloat(s);
   }
 
-  // Try to coerce a string into ISO date YYYY-MM-DD
-  function parseDate(raw) {
+  // Try to coerce a string into ISO date YYYY-MM-DD.
+  // `order` is 'DMY' (default) or 'MDY'; resolves ambiguous "01/02/2026" cases.
+  // Pure DD/MM/YYYY exports (most EU bank CSVs) keep working with the default.
+  function parseDate(raw, order) {
     if (!raw) return null;
     const s = String(raw).trim();
-    // ISO already
     if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10);
-    // DD/MM/YYYY or DD-MM-YYYY
     let m = s.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})/);
     if (m) {
-      let yr = m[3].length === 2 ? '20' + m[3] : m[3];
-      return yr + '-' + m[2].padStart(2, '0') + '-' + m[1].padStart(2, '0');
+      const a = parseInt(m[1], 10), b = parseInt(m[2], 10);
+      let d, mo;
+      if (order === 'MDY') { mo = a; d = b; }
+      else                 { d = a; mo = b; }
+      if (mo < 1 || mo > 12 || d < 1 || d > 31) return null;
+      const yr = m[3].length === 2 ? '20' + m[3] : m[3];
+      return yr + '-' + String(mo).padStart(2, '0') + '-' + String(d).padStart(2, '0');
     }
     return null;
+  }
+
+  // Scan a date column to decide DMY vs MDY. Any first-segment > 12 proves DMY;
+  // any second-segment > 12 proves MDY. If both or neither, defaults to DMY
+  // (the existing behavior and the dominant EU bank format).
+  function detectDateOrder(rows, dateColIdx, start) {
+    let sawDmy = 0, sawMdy = 0;
+    for (let i = start; i < rows.length; i++) {
+      const cell = rows[i] && rows[i][dateColIdx];
+      if (!cell) continue;
+      const m = String(cell).trim().match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})/);
+      if (!m) continue;
+      const a = parseInt(m[1], 10), b = parseInt(m[2], 10);
+      if (a > 12) sawDmy++;
+      else if (b > 12) sawMdy++;
+    }
+    return sawMdy > sawDmy ? 'MDY' : 'DMY';
   }
 
   // Detect rows whose column count is an outlier vs the modal — these are usually
@@ -976,12 +998,13 @@
 
       const skipInfo = detectSkipRows(rows, hasHeader);
       const start = hasHeader ? 1 : 0;
+      const dateOrder = detectDateOrder(rows, dateIdx, start);
       for (let i = start; i < rows.length; i++) {
         const r = rows[i];
         if (!r || !r.length) continue;
         if (skipInfo.skip.has(i)) {
           // Capture as opening / closing balance for the banner.
-          const d = parseDate(r[dateIdx]);
+          const d = parseDate(r[dateIdx], dateOrder);
           const a = parseAmount(r[amountIdx]);
           if (d && !isNaN(a)) {
             const entry = { date: d, amount: a, raw: r.slice() };
@@ -991,7 +1014,7 @@
           }
           continue;
         }
-        const date = parseDate(r[dateIdx]);
+        const date = parseDate(r[dateIdx], dateOrder);
         const amount = parseAmount(r[amountIdx]);
         const description = descIdxs.map(idx => (r[idx] || '').trim()).filter(Boolean).join(' ');
         const catName = catIdx >= 0 ? (r[catIdx] || '').trim() : '';
@@ -1073,6 +1096,8 @@
     function handleCommit(selectedRows) {
       if (!FCStore) return;
       const nowIso = new Date().toISOString();
+      const commitProfile = (window.FCAuth && window.FCAuth.currentProfile()) || {};
+      const baseCurrency = commitProfile.baseCurrency || 'EUR';
       // Newly-introduced tags get added to the tags table so future suggestions include them.
       const knownTags = new Set();
       try { FCStore.list('tags').forEach(t => knownTags.add(typeof t === 'string' ? t : t.name)); } catch (e) {}
@@ -1083,21 +1108,26 @@
         const acctId = r.accountId || (accounts[0] && accounts[0].id) || null;
         const acct = accounts.find(a => a.id === acctId);
         const acctCurrency = acct && acct.currency ? acct.currency : (r.currency || 'EUR');
+        // Bank CSV amounts are in the destination account's currency; convert to base.
+        const txCurrency = acctCurrency;
+        const fxRate = window.FCStore.getFxRate(txCurrency, baseCurrency);
+        const amountBase = txCurrency === baseCurrency ? r.amount : r.amount * fxRate;
         const tx = {
           date: r.date,
           amount: r.amount,
           amountOriginal: r.amount,
-          currencyOriginal: r.currency || acctCurrency,
-          amountBase: r.amount,
-          fxRateSnapshot: 1,
+          currencyOriginal: txCurrency,
+          amountBase: Math.round(amountBase * 100) / 100,
+          fxRateSnapshot: fxRate,
           description: r.description,
           merchant: r.description,
           categoryId: r.categoryId || null,
-          category: r.categoryId ? (categories.find(c => c.id === r.categoryId) || {}).name : 'Uncategorized',
+          category: r.categoryId ? (categories.find(c => c.id === r.categoryId) || {}).name : '',
           accountId: acctId,
           // Legacy display field used by Transactions screen filters (matched by name).
           account: acct ? acct.name : '',
-          currency: r.currency || acctCurrency,
+          currency: txCurrency,
+          currencyConverted: txCurrency === baseCurrency ? null : Math.round(amountBase * 100) / 100,
           tags,
           source: 'import',
           createdAt: nowIso,

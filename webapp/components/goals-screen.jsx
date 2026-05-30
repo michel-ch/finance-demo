@@ -25,12 +25,17 @@ window.FC.GoalsScreen = function GoalsScreen({ blurred, data, displayFont }) {
   }
 
   const active = goals.find(g => g.id === activeId) || goals[0];
-  const progress = active.current / active.target;
-  const monthsToTarget = (active.target - active.current) / (active.contribMonthly || 1);
+  const progress = active.target ? active.current / active.target : 0;
+  const hasContrib = (active.contribMonthly || 0) > 0;
+  const monthsToTarget = hasContrib
+    ? Math.max(0, (active.target || 0) - (active.current || 0)) / active.contribMonthly
+    : Infinity;
   const projectedDate = new Date(data.today || Date.now());
-  projectedDate.setMonth(projectedDate.getMonth() + Math.ceil(monthsToTarget));
+  if (isFinite(monthsToTarget)) projectedDate.setMonth(projectedDate.getMonth() + Math.ceil(monthsToTarget));
   const deadlineDate = new Date(active.deadline);
-  const slipMonths = Math.round((projectedDate - deadlineDate) / (1000 * 60 * 60 * 24 * 30));
+  const slipMonths = isFinite(monthsToTarget)
+    ? Math.round((projectedDate - deadlineDate) / (1000 * 60 * 60 * 24 * 30))
+    : Infinity;
 
   const totalCommitted = goals.reduce((s, g) => s + g.current, 0);
   const totalTarget = goals.reduce((s, g) => s + g.target, 0);
@@ -144,7 +149,9 @@ window.FC.GoalsScreen = function GoalsScreen({ blurred, data, displayFont }) {
             <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.6px', textTransform: 'uppercase', marginBottom: 4, opacity: 0.7 }}>
               Pace analysis
             </div>
-            {active.status === 'on-track' ? (
+            {!hasContrib ? (
+              <>No monthly contribution set yet — add one to see your projected completion date.</>
+            ) : active.status === 'on-track' ? (
               <>
                 At your current pace of <strong>€{active.contribMonthly}/month</strong>, you'll reach this goal on{' '}
                 <strong>{projectedDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</strong>
@@ -160,7 +167,7 @@ window.FC.GoalsScreen = function GoalsScreen({ blurred, data, displayFont }) {
           </div>
 
           {/* Pressure-test suggestions — derived from this goal's numbers */}
-          {slipMonths > 0 && (() => {
+          {hasContrib && isFinite(slipMonths) && slipMonths > 0 && (() => {
             const ccy = active.currency || 'EUR';
             const remaining = Math.max(0, active.target - active.current);
             const monthsLeft = Math.max(1, Math.round((deadlineDate - new Date()) / (1000 * 60 * 60 * 24 * 30)));

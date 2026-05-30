@@ -304,7 +304,7 @@
         const row = window.FCStore.get('cards', ev.editId);
         if (row) {
           setForm({
-            accountId: row.accountId || (accounts.length ? accounts[0].id : ''),
+            accountId: row.accountId || (fresh.length ? fresh[0].id : ''),
             kind: row.kind || 'debit',
             billingDay: row.billingDay != null ? String(row.billingDay) : '15',
             creditLimit: row.creditLimit != null ? String(row.creditLimit) : (row.limit != null ? String(row.limit) : ''),
@@ -725,6 +725,7 @@
       return {
         name: '',
         amount: '', currency: currencies[0] || 'EUR',
+        direction: 'out',
         freq: 'monthly',
         nextDate: todayIso(),
         accountId: accounts.length ? accounts[0].id : '',
@@ -745,6 +746,7 @@
             name: row.name || '',
             amount: row.amount != null ? String(row.amount) : '',
             currency: row.currency || (currencies[0] || 'EUR'),
+            direction: row.direction || 'out',
             freq: row.freq || 'monthly',
             nextDate: (row.nextDate || row.date || todayIso()).slice(0, 10),
             accountId: row.accountId || (accounts.length ? accounts[0].id : ''),
@@ -770,6 +772,7 @@
         name: form.name.trim(),
         amount: amt,
         currency: form.currency,
+        direction: form.direction || 'out',
         freq: form.freq,
         nextDate: form.nextDate,
         accountId: form.accountId || null,
@@ -820,6 +823,13 @@
             </select>
           </Field>
         </Row>
+
+        <Field label="Type">
+          <div style={{ display: 'flex', gap: 6 }}>
+            <Chip label="Expense" on={form.direction !== 'in'} onClick={function () { set('direction', 'out'); }} />
+            <Chip label="Income" on={form.direction === 'in'} onClick={function () { set('direction', 'in'); }} />
+          </div>
+        </Field>
 
         <Field label="Frequency">
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
