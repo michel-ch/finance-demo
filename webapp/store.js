@@ -18,6 +18,28 @@
 
   function round2(n) { return Math.round(n * 100) / 100; }
 
+  function addMonths(d, n) {
+    // Roll forward n months without the JS overflow that turns Jan 31 + 1mo into
+    // March 3; clamp to the last valid day of the target month instead.
+    var day = d.getDate();
+    d.setDate(1);
+    d.setMonth(d.getMonth() + n);
+    var lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+    d.setDate(Math.min(day, lastDay));
+  }
+
+  function ymdLocal(d) {
+    // Format using local calendar components. toISOString() would shift the date by
+    // the machine's UTC offset and can land an event on the wrong projection day.
+    var y = d.getFullYear(), m = d.getMonth() + 1, day = d.getDate();
+    return y + '-' + (m < 10 ? '0' : '') + m + '-' + (day < 10 ? '0' : '') + day;
+  }
+  function parseLocalDate(s) {
+    // Parse 'YYYY-MM-DD' as local midnight (new Date('YYYY-MM-DD') is UTC midnight,
+    // which mismatches the local-midnight `today` used elsewhere).
+    return new Date(String(s).slice(0, 10) + 'T00:00:00');
+  }
+
   function affectsCache(table) {
     return table === 'accounts' || table === 'transactions'
         || table === 'cards' || table === 'goals' || table === 'budgets';
@@ -171,6 +193,7 @@
         if (g.type === 'cap-spend' && g.linkedCategoryId) {
           var capSpent = 0;
           txs.forEach(function (t) {
+            if (t.transfer) return;
             if (t.categoryId !== g.linkedCategoryId) return;
             if (!t.date || t.date.slice(0, 7) !== thisMonth) return;
             var v = txAccountAmount(t);
@@ -196,6 +219,7 @@
         var month = String(b.month).slice(0, 7);
         var rawSpent = 0;
         txs.forEach(function (t) {
+          if (t.transfer) return;
           if (t.categoryId !== b.categoryId) return;
           if (!t.date || t.date.slice(0, 7) !== month) return;
           var v = txAccountAmount(t);
@@ -216,6 +240,7 @@
         if (preserves('cards', c.id)) return c;
         var cSpent = 0;
         txs.forEach(function (t) {
+          if (t.transfer) return;
           if (!txMatchesCard(t, c)) return;
           if (!t.date || t.date.slice(0, 7) !== thisMonth) return;
           var v = txAccountAmount(t);
@@ -317,6 +342,167 @@
      * seedDefaultCategoriesIfEmpty; demo callers should use seedDemoData.
      */
     seedIfEmpty: function () { this.seedDefaultCategoriesIfEmpty(); },
+
+    /**
+     * Seed a starter FX rate table if `fxCache` is empty. Rates are expressed as
+     * `1 unit of FROM = rate units of TO`. Users can edit via DevTools today;
+     * a Settings UI is a separate task.
+     */
+    seedFxIfEmpty: function () {
+      if (this.list('fxCache').length > 0) return;
+      this.set('fxCache', [
+        { from: 'USD', to: 'EUR', rate: 0.92 },
+        { from: 'GBP', to: 'EUR', rate: 1.17 },
+        { from: 'CHF', to: 'EUR', rate: 1.05 },
+        { from: 'JPY', to: 'EUR', rate: 0.0061 },
+        { from: 'CAD', to: 'EUR', rate: 0.68 },
+        { from: 'AUD', to: 'EUR', rate: 0.61 },
+      ]);
+    },
+
+    /**
+     * Convert one unit of `from` into units of `to`. Same currency = 1.
+     * Looks up `fxCache` for a direct entry; falls back to inverting the reverse
+     * entry; falls back to triangulation through EUR; final fallback is 1
+     * (preserves prior behavior of "same as base" when a rate is missing).
+     */
+    getFxRate: function (from, to) {
+      if (!from || !to || from === to) return 1;
+      var cache = this.list('fxCache');
+      var direct = cache.find(function (r) { return r.from === from && r.to === to; });
+      if (direct && direct.rate) return direct.rate;
+      var inverse = cache.find(function (r) { return r.from === to && r.to === from; });
+      if (inverse && inverse.rate) return 1 / inverse.rate;
+      // Triangulate via EUR.
+      if (from !== 'EUR' && to !== 'EUR') {
+        var fromEur = this.getFxRate(from, 'EUR');
+        var eurTo = this.getFxRate('EUR', to);
+        if (fromEur !== 1 || eurTo !== 1) return fromEur * eurTo;
+      }
+      // No rate available: degrade to 1:1, but warn so a missing rate is visible
+      // instead of silently treating foreign money as base currency.
+      if (window.console && console.warn) {
+        console.warn('[FCStore.getFxRate] no rate for ' + from + ' -> ' + to + ', using 1:1');
+      }
+      return 1;
+    },
+
+    /**
+     * Project balances forward. Returns { history:[], projection:[{d,v}], events:[{d,t,n,a}] }.
+     * Strategy:
+     *   - Start value = sum of selected accounts' balances converted to base currency.
+     *   - For each day in [today, today+days): apply every recurring rule whose
+     *     nextDate equals or has been rolled to that day (uses freq bumping).
+     *   - Returns one data point per day; the chart can downsample as needed.
+     * Args:
+     *   opts.days        — horizon in days (default 30)
+     *   opts.accountIds  — array of account ids to include (default: all)
+     *   opts.baseCurrency— output currency (default: profile.baseCurrency or 'EUR')
+     */
+    buildForecast: function (opts) {
+      opts = opts || {};
+      var days = opts.days || 30;
+      var base = opts.baseCurrency
+              || (window.FCAuth && (FCAuth.currentProfile() || {}).baseCurrency)
+              || 'EUR';
+      var accounts = this.list('accounts');
+      var ids = opts.accountIds && opts.accountIds.length
+              ? new Set(opts.accountIds)
+              : new Set(accounts.map(function (a) { return a.id; }));
+      var selected = accounts.filter(function (a) { return ids.has(a.id); });
+      var self = this;
+      var start = selected.reduce(function (s, a) {
+        return s + (a.balance || 0) * self.getFxRate(a.currency || base, base);
+      }, 0);
+      var rules = this.list('recurring').filter(function (r) {
+        if (!r || !r.nextDate || !r.freq) return false;
+        // Include the rule if its account isn't pinned to a non-selected account.
+        if (r.accountId) return ids.has(r.accountId);
+        if (r.account) {
+          var match = accounts.find(function (a) { return a.name === r.account; });
+          if (match) return ids.has(match.id);
+        }
+        return true;
+      });
+
+      function ymd(d) { return ymdLocal(d); }
+      function bumpFreq(d, freq) {
+        if (freq === 'daily')      d.setDate(d.getDate() + 1);
+        else if (freq === 'weekly')d.setDate(d.getDate() + 7);
+        else if (freq === 'yearly')d.setFullYear(d.getFullYear() + 1);
+        else                       addMonths(d, 1);
+      }
+
+      var today = new Date(); today.setHours(0, 0, 0, 0);
+      var events = [];
+      // Recurring rules store positive amounts plus a `direction` ('in' for income,
+      // otherwise an outflow). Legacy rules with no direction are treated as outflows.
+      rules.forEach(function (r) {
+        if (r.freq === 'custom') return;
+        var d = parseLocalDate(r.nextDate);
+        if (isNaN(d.getTime())) return;
+        var horizon = new Date(today); horizon.setDate(horizon.getDate() + days);
+        var fx = self.getFxRate(r.currency || base, base);
+        var raw = r.amount || 0;
+        var income = r.direction === 'in' || r.type === 'income';
+        var signed = income ? Math.abs(raw) : -Math.abs(raw);
+        var amt = signed * fx;
+        var guard = 0;
+        while (d <= horizon && guard++ < 1200) {
+          if (d >= today) events.push({ date: ymd(d), t: amt >= 0 ? 'in' : 'out', n: r.name || r.merchant || 'Recurring', a: amt });
+          bumpFreq(d, r.freq);
+        }
+      });
+      events.sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
+
+      // Walk day-by-day, applying events on their date.
+      // Projection rows are `{ d: dayOffset, date: 'YYYY-MM-DD', v }` so consumers
+      // can filter on day-offset (e.g. horizon = 60) or render the ISO date.
+      var projection = [];
+      var running = start;
+      var byDay = {};
+      events.forEach(function (e) { (byDay[e.date] = byDay[e.date] || 0); byDay[e.date] += e.a; });
+      for (var i = 0; i <= days; i++) {
+        var d = new Date(today); d.setDate(d.getDate() + i);
+        var k = ymd(d);
+        if (byDay[k]) running += byDay[k];
+        projection.push({ d: i, date: k, v: Math.round(running * 100) / 100 });
+      }
+      return { history: [], projection: projection, events: events };
+    },
+
+    /**
+     * Roll every recurring rule's `nextDate` forward until it is in the future.
+     * Idempotent and safe to call every app boot. Does not create transactions —
+     * recurring rules in v1 are reminders + forecast inputs, not auto-postings.
+     * Custom-frequency rules and undated rules are left alone.
+     */
+    tickRecurring: function () {
+      var pid = this.profileId();
+      if (!pid) return 0;
+      var rows = this.list('recurring');
+      var today = new Date(); today.setHours(0, 0, 0, 0);
+      var changed = 0;
+      var next = rows.map(function (r) {
+        if (!r || !r.nextDate || !r.freq || r.freq === 'custom') return r;
+        var d = parseLocalDate(r.nextDate);
+        if (isNaN(d.getTime())) return r;
+        var bumped = false;
+        var guard = 0;
+        while (d < today && guard++ < 600) {
+          if (r.freq === 'daily')      d.setDate(d.getDate() + 1);
+          else if (r.freq === 'weekly')d.setDate(d.getDate() + 7);
+          else if (r.freq === 'yearly')d.setFullYear(d.getFullYear() + 1);
+          else                         addMonths(d, 1);
+          bumped = true;
+        }
+        if (!bumped) return r;
+        changed++;
+        return Object.assign({}, r, { nextDate: ymdLocal(d) });
+      });
+      if (changed) save(key(pid, 'recurring'), next);
+      return changed;
+    },
   };
 
   function defaultCategories() {
