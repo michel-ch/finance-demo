@@ -40,9 +40,9 @@ for the full diff and how to keep them in sync.
 
 Three "flux" views of the runtime, each a filtered slice of one master flux
 table. Component ids and flux ids (`F1..F21`) are stable across all views. Finch
-is **offline and local-only**: there is no backend and no network flux. The
-diagrams below render inline on GitHub; the editable draw.io sources and the
-full flux descriptions are linked under each view.
+is **offline and local-only**: there is no backend and no network flux. Each
+view below is the rendered draw.io diagram (SVG); the editable `.drawio` source
+and the full flux descriptions are linked under it.
 
 Master flux list and glossary: [`docs/architecture-fluxes.md`](docs/architecture-fluxes.md).
 
@@ -52,48 +52,7 @@ The big picture: the User reaches the Browser Runtime, which drives the App
 Logic (auth + store + money engine), which reads and writes Local Storage.
 Nothing crosses the External / Network boundary.
 
-```mermaid
-flowchart TD
-  user([User])
-
-  subgraph P1[P1 Browser Runtime]
-    direction TB
-    runtime[Pages + Shell + Screens]
-  end
-
-  subgraph P2[P2 App Logic]
-    direction TB
-    logic[FCAuth + FCStore + Money Engine]
-  end
-
-  subgraph P3[P3 Local Storage]
-    direction TB
-    storage[(localStorage tables)]
-  end
-
-  subgraph PX[External / Network]
-    direction TB
-    none[No network - fully offline]
-  end
-
-  user -->|F1 load + session guard| runtime
-  runtime -->|F10 build live snapshot| logic
-  runtime -->|F12/F13 CRUD save| logic
-  logic -.->|F10 read tables| storage
-  logic -.->|F12/F13 persist| storage
-  runtime -->|F19 restore backup| logic
-  logic -.->|F19 replace all| storage
-  runtime -. no calls .- none
-
-  classDef p1 fill:#FFE6CC,stroke:#D79B00,color:#000;
-  classDef p2 fill:#DAE8FC,stroke:#6C8EBF,color:#000;
-  classDef p3 fill:#D5E8D4,stroke:#82B366,color:#000;
-  classDef px fill:#F5F5F5,stroke:#999999,color:#000;
-  class runtime p1;
-  class logic p2;
-  class storage p3;
-  class none px;
-```
+<img src="docs/diagrams/architecture-context.svg" alt="Finch architecture - context (L0)" width="680">
 
 *Context (L0): top-level fluxes F1, F10, F12/F13, F19.
 Source: [architecture-context.drawio](docs/diagrams/architecture-context.drawio) -
@@ -105,66 +64,7 @@ The request, authentication, render, and save path: page load and session guard,
 signup/login/PIN, idle auto-lock, screen render, transaction and entry saves,
 cross-page navigation, and settings changes.
 
-```mermaid
-flowchart TD
-  user([User])
-
-  subgraph P1[P1 Browser Runtime]
-    direction TB
-    login[login.html]
-    signup[signup.html]
-    pin[pin.html]
-    dpage[desktop/page.js boot + router]
-    mpage[mobile/page.js boot]
-    shell[DesktopShell / MobileTabs]
-    screens[React screens on window.FC]
-    modals[Add / CRUD / Holding / BulkDelete modals]
-  end
-
-  subgraph P2[P2 App Logic]
-    direction TB
-    auth[window.FCAuth]
-    store[window.FCStore]
-    engine_recompute[recompute]
-  end
-
-  subgraph P3[P3 Local Storage]
-    direction TB
-    ls_auth[(fc.profiles / session / pinLocked)]
-    ls_data[(fc.data.profileId.table)]
-  end
-
-  user -->|F1 load + guard| dpage
-  user -->|F1 load + guard| mpage
-  dpage -->|F1 requireSession| auth
-  mpage -->|F1 requireSession| auth
-  signup -->|F2 signup hash| auth
-  auth -->|F2 write profile| ls_auth
-  login -->|F3 login verify| auth
-  auth -->|F3 write session| ls_auth
-  screens -->|F4 set/verify PIN| auth
-  auth -->|F4 PIN store| ls_auth
-  pin -->|F5 unlock gate| auth
-  dpage -->|F6 idle auto-lock| auth
-  dpage -->|F10 build snapshot| store
-  dpage -->|F11 mount screen| shell
-  shell -->|F11 render| screens
-  modals -->|F12 save tx| store
-  modals -->|F13 CRUD save| store
-  store -->|F12/F13 recompute| engine_recompute
-  screens -->|F14 bulk delete| store
-  shell -->|F20 cross-page nav| dpage
-  screens -->|F21 settings change| auth
-  auth -->|F21 updateProfile| ls_auth
-  store -.->|F10 read tables| ls_data
-
-  classDef p1 fill:#FFE6CC,stroke:#D79B00,color:#000;
-  classDef p2 fill:#DAE8FC,stroke:#6C8EBF,color:#000;
-  classDef p3 fill:#D5E8D4,stroke:#82B366,color:#000;
-  class login,signup,pin,dpage,mpage,shell,screens,modals p1;
-  class auth,store,engine_recompute p2;
-  class ls_auth,ls_data p3;
-```
+<img src="docs/diagrams/architecture-runtime.svg" alt="Finch architecture - runtime and auth fluxes" width="900">
 
 *Runtime + Auth: F1-F6, F10-F14, F20, F21.
 Source: [architecture-runtime.drawio](docs/diagrams/architecture-runtime.drawio) -
@@ -176,56 +76,7 @@ The persistence and money-engine view: seeding, recurring tick, snapshot build,
 CRUD persistence, forecast, FX conversion, import/export, and restore - plus the
 engine functions and the per-profile localStorage tables.
 
-```mermaid
-flowchart TD
-  subgraph P1[P1 Browser Runtime]
-    direction TB
-    dpage[desktop/page.js boot + router]
-    screens[React screens on window.FC]
-    modals[Add / CRUD / Holding / BulkDelete modals]
-  end
-
-  subgraph P2[P2 App Logic]
-    direction TB
-    store[window.FCStore]
-    engine_fx[getFxRate]
-    engine_forecast[buildForecast]
-    engine_recompute[recompute]
-    engine_recurring[tickRecurring]
-  end
-
-  subgraph P3[P3 Local Storage]
-    direction TB
-    ls_data[(fc.data.profileId.table - 14 tables)]
-  end
-
-  dpage -.->|F7 seedIfEmpty| store
-  dpage -.->|F8 seedFxIfEmpty| store
-  dpage -.->|F9 tick recurring| engine_recurring
-  dpage -.->|F10 build snapshot| store
-  store -.->|F10 list tables| ls_data
-  store -.->|F10 forecast| engine_forecast
-  store -.->|F10 fx| engine_fx
-  modals -.->|F12 save tx| store
-  modals -.->|F13 CRUD save| store
-  store -.->|F12/F13 recompute| engine_recompute
-  store -.->|F12/F13 persist| ls_data
-  engine_forecast -.->|F15 uses direction + fx| engine_fx
-  engine_forecast -.->|F15 projection| store
-  engine_fx -.->|F16 rate cache| ls_data
-  screens -.->|F17 import CSV| store
-  screens -.->|F18 export snapshot| store
-  screens -.->|F19 restore backup| store
-  store -.->|F19 replace all| ls_data
-  engine_recurring -.->|F9 post due| ls_data
-
-  classDef p1 fill:#FFE6CC,stroke:#D79B00,color:#000;
-  classDef p2 fill:#DAE8FC,stroke:#6C8EBF,color:#000;
-  classDef p3 fill:#D5E8D4,stroke:#82B366,color:#000;
-  class dpage,screens,modals p1;
-  class store,engine_fx,engine_forecast,engine_recompute,engine_recurring p2;
-  class ls_data p3;
-```
+<img src="docs/diagrams/architecture-data.svg" alt="Finch architecture - data and money-engine fluxes" width="900">
 
 Key table relationships (companion entity view):
 

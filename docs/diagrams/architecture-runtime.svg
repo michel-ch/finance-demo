@@ -1,0 +1,134 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1310" height="980" viewBox="0 0 1310 980" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+<rect x="0" y="0" width="1310" height="980" fill="#ffffff"/>
+<rect x="40.0" y="150.0" width="1240.0" height="270.0" rx="8" ry="8" fill="#FFF7E6" stroke="#D79B00" stroke-width="2.0"/>
+<text x="660.0" y="174.0" font-size="14" fill="#9A5B00" text-anchor="middle" font-weight="bold">P1 Browser Runtime</text>
+<rect x="40.0" y="520.0" width="1240.0" height="130.0" rx="8" ry="8" fill="#EAF2FD" stroke="#6C8EBF" stroke-width="2.0"/>
+<text x="660.0" y="544.0" font-size="14" fill="#1A3C66" text-anchor="middle" font-weight="bold">P2 App Logic</text>
+<rect x="40.0" y="760.0" width="1240.0" height="140.0" rx="8" ry="8" fill="#EAF7E6" stroke="#82B366" stroke-width="2.0"/>
+<text x="660.0" y="784.0" font-size="14" fill="#2E5A1C" text-anchor="middle" font-weight="bold">P3 Local Storage</text>
+<path d="M 190.0 85.0 L 620.0 85.0 L 620.0 130.0 L 760.0 130.0 L 760.0 195.0" fill="none" stroke="#000000" stroke-width="1.5"/>
+<polygon points="760.0,195.0 755.5,185.0 764.5,185.0" fill="#000000"/>
+<rect x="489.9" y="78.5" width="80.2" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="530.0" y="88.2" font-size="9" fill="#000000" text-anchor="middle">F1 load + guard</text>
+<path d="M 125.0 60.0 L 125.0 40.0 L 125.0 120.0 L 987.0 120.0 L 987.5 195.0" fill="none" stroke="#000000" stroke-width="1.5"/>
+<polygon points="987.5,195.0 982.9,185.0 991.9,185.0" fill="#000000"/>
+<rect x="503.4" y="113.5" width="80.2" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="543.5" y="123.2" font-size="9" fill="#000000" text-anchor="middle">F1 load + guard</text>
+<path d="M 660.0 218.0 L 600.0 218.0 L 600.0 470.0 L 220.0 470.0 L 220.0 565.0" fill="none" stroke="#000000" stroke-width="1.5"/>
+<polygon points="220.0,565.0 215.5,555.0 224.5,555.0" fill="#000000"/>
+<rect x="473.4" y="463.5" width="90.2" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="518.5" y="473.1" font-size="9" fill="#000000" text-anchor="middle">F1 requireSession</text>
+<path d="M 900.0 218.0 L 1085.0 218.0 L 1085.0 480.0 L 264.0 480.0 L 260.0 480.0 L 260.0 565.0" fill="none" stroke="#000000" stroke-width="1.5"/>
+<polygon points="260.0,565.0 255.5,555.0 264.5,555.0" fill="#000000"/>
+<rect x="808.4" y="473.5" width="90.2" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="853.5" y="483.1" font-size="9" fill="#000000" text-anchor="middle">F1 requireSession</text>
+<path d="M 250.0 218.0 L 235.0 218.0 L 235.0 490.0 L 160.0 490.0 L 160.0 565.0" fill="none" stroke="#000000" stroke-width="1.5"/>
+<polygon points="160.0,565.0 155.5,555.0 164.5,555.0" fill="#000000"/>
+<rect x="197.3" y="415.0" width="75.3" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="235.0" y="424.6" font-size="9" fill="#000000" text-anchor="middle">F2 signup hash</text>
+<path d="M 150.0 611.0 L 150.0 795.0 L 159.0 795.0" fill="none" stroke="#000000" stroke-width="1.5"/>
+<polygon points="159.0,795.0 149.0,799.5 149.0,790.5" fill="#000000"/>
+<rect x="107.4" y="701.0" width="85.2" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="150.0" y="710.6" font-size="9" fill="#000000" text-anchor="middle">F2 write profile</text>
+<path d="M 145.0 241.0 L 145.0 500.0 L 200.0 500.0 L 200.0 565.0" fill="none" stroke="#000000" stroke-width="1.5"/>
+<polygon points="200.0,565.0 195.5,555.0 204.5,555.0" fill="#000000"/>
+<rect x="104.9" y="424.0" width="80.2" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="145.0" y="433.6" font-size="9" fill="#000000" text-anchor="middle">F3 login verify</text>
+<path d="M 190.0 611.0 L 190.0 795.0 L 211.0 795.0" fill="none" stroke="#000000" stroke-width="1.5"/>
+<polygon points="211.0,795.0 201.0,799.5 201.0,790.5" fill="#000000"/>
+<rect x="147.4" y="707.0" width="85.2" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="190.0" y="716.6" font-size="9" fill="#000000" text-anchor="middle">F3 write session</text>
+<path d="M 1005.0 366.0 L 1005.0 505.0 L 290.0 505.0 L 290.0 565.0" fill="none" stroke="#000000" stroke-width="1.5"/>
+<polygon points="290.0,565.0 285.5,555.0 294.5,555.0" fill="#000000"/>
+<rect x="641.9" y="498.5" width="90.2" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="687.0" y="508.1" font-size="9" fill="#000000" text-anchor="middle">F4 set/verify PIN</text>
+<path d="M 230.0 611.0 L 230.0 795.0 L 263.0 795.0" fill="none" stroke="#000000" stroke-width="1.5"/>
+<polygon points="263.0,795.0 253.0,799.5 253.0,790.5" fill="#000000"/>
+<rect x="197.3" y="713.0" width="65.4" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="230.0" y="722.6" font-size="9" fill="#000000" text-anchor="middle">F4 PIN store</text>
+<path d="M 505.0 241.0 L 505.0 510.0 L 240.0 510.0 L 240.0 565.0" fill="none" stroke="#000000" stroke-width="1.5"/>
+<polygon points="240.0,565.0 235.5,555.0 244.5,555.0" fill="#000000"/>
+<rect x="441.9" y="503.5" width="75.3" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="479.5" y="513.1" font-size="9" fill="#000000" text-anchor="middle">F5 unlock gate</text>
+<path d="M 660.0 227.2 L 615.0 227.0 L 615.0 460.0 L 280.0 460.0 L 280.0 565.0" fill="none" stroke="#000000" stroke-width="1.5"/>
+<polygon points="280.0,565.0 275.5,555.0 284.5,555.0" fill="#000000"/>
+<rect x="488.9" y="453.5" width="90.2" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="534.0" y="463.1" font-size="9" fill="#000000" text-anchor="middle">F6 idle auto-lock</text>
+<path d="M 860.0 218.0 L 880.0 218.0 L 880.0 475.0 L 680.0 475.0 L 680.0 565.0" fill="none" stroke="#000000" stroke-width="1.5"/>
+<polygon points="680.0,565.0 675.5,555.0 684.5,555.0" fill="#000000"/>
+<rect x="826.0" y="468.5" width="95.1" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="873.5" y="478.1" font-size="9" fill="#000000" text-anchor="middle">F10 build snapshot</text>
+<path d="M 740.0 241.0 L 740.0 320.0" fill="none" stroke="#000000" stroke-width="1.5"/>
+<polygon points="740.0,320.0 735.5,310.0 744.5,310.0" fill="#000000"/>
+<rect x="697.4" y="274.0" width="85.2" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="740.0" y="283.6" font-size="9" fill="#000000" text-anchor="middle">F11 mount screen</text>
+<path d="M 860.0 343.0 L 900.0 343.0" fill="none" stroke="#000000" stroke-width="1.5"/>
+<polygon points="900.0,343.0 890.0,347.5 890.0,338.5" fill="#000000"/>
+<rect x="852.2" y="336.5" width="55.5" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="880.0" y="346.1" font-size="9" fill="#000000" text-anchor="middle">F11 render</text>
+<path d="M 1180.0 261.0 L 1180.0 500.0 L 760.0 500.0 L 760.0 565.0" fill="none" stroke="#000000" stroke-width="1.5"/>
+<polygon points="760.0,565.0 755.5,555.0 764.5,555.0" fill="#000000"/>
+<rect x="1026.8" y="493.5" width="60.5" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="1057.0" y="503.1" font-size="9" fill="#000000" text-anchor="middle">F12 save tx</text>
+<path d="M 1100.0 228.0 L 1090.0 228.0 L 1090.0 199.0 L 1090.0 490.0 L 800.0 490.0 L 800.0 565.0" fill="none" stroke="#000000" stroke-width="1.5"/>
+<polygon points="800.0,565.0 795.5,555.0 804.5,555.0" fill="#000000"/>
+<rect x="1037.3" y="483.5" width="70.4" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="1072.5" y="493.1" font-size="9" fill="#000000" text-anchor="middle">F13 CRUD save</text>
+<path d="M 820.0 588.0 L 920.0 588.0" fill="none" stroke="#000000" stroke-width="1.5"/>
+<polygon points="920.0,588.0 910.0,592.5 910.0,583.5" fill="#000000"/>
+<rect x="824.9" y="581.5" width="90.2" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="870.0" y="591.1" font-size="9" fill="#000000" text-anchor="middle">F12/F13 recompute</text>
+<path d="M 987.5 366.0 L 987.0 510.0 L 720.0 510.0 L 720.0 565.0" fill="none" stroke="#000000" stroke-width="1.5"/>
+<polygon points="720.0,565.0 715.5,555.0 724.5,555.0" fill="#000000"/>
+<rect x="857.9" y="503.5" width="80.2" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="898.0" y="513.1" font-size="9" fill="#000000" text-anchor="middle">F14 bulk delete</text>
+<path d="M 800.0 320.0 L 800.0 241.0 L 780.0 241.0" fill="none" stroke="#000000" stroke-width="1.5"/>
+<polygon points="780.0,241.0 790.0,236.5 790.0,245.5" fill="#000000"/>
+<rect x="752.5" y="264.0" width="95.1" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="800.0" y="273.6" font-size="9" fill="#000000" text-anchor="middle">F20 cross-page nav</text>
+<path d="M 900.0 356.8 L 605.0 356.8 L 605.0 358.0 L 605.0 505.0 L 310.0 505.0 L 310.0 565.0" fill="none" stroke="#000000" stroke-width="1.5"/>
+<polygon points="310.0,565.0 305.5,555.0 314.5,555.0" fill="#000000"/>
+<rect x="555.0" y="454.4" width="100.1" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="605.0" y="464.1" font-size="9" fill="#000000" text-anchor="middle">F21 settings change</text>
+<path d="M 270.0 611.0 L 270.0 795.0 L 315.0 795.0" fill="none" stroke="#000000" stroke-width="1.5"/>
+<polygon points="315.0,795.0 305.0,799.5 305.0,790.5" fill="#000000"/>
+<rect x="224.9" y="719.0" width="90.2" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="270.0" y="728.6" font-size="9" fill="#000000" text-anchor="middle">F21 updateProfile</text>
+<path d="M 720.0 611.0 L 720.0 795.0 L 750.0 795.0" fill="none" stroke="#000000" stroke-width="1.5" stroke-dasharray="6 4"/>
+<polygon points="750.0,795.0 740.0,799.5 740.0,790.5" fill="#000000"/>
+<rect x="679.9" y="711.5" width="80.2" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="720.0" y="721.1" font-size="9" fill="#000000" text-anchor="middle">F10 read tables</text>
+<rect x="60.0" y="60.0" width="130.0" height="50.0" rx="8" ry="8" fill="#ffffff" stroke="#000000" stroke-width="1"/>
+<text x="125.0" y="88.8" font-size="11" fill="#000000" text-anchor="middle" font-weight="bold">User</text>
+<rect x="70.0" y="195.0" width="150.0" height="46.0" rx="8" ry="8" fill="#FFE6CC" stroke="#D79B00" stroke-width="1"/>
+<text x="145.0" y="221.5" font-size="10" fill="#000000" text-anchor="middle">login.html</text>
+<rect x="250.0" y="195.0" width="150.0" height="46.0" rx="8" ry="8" fill="#FFE6CC" stroke="#D79B00" stroke-width="1"/>
+<text x="325.0" y="221.5" font-size="10" fill="#000000" text-anchor="middle">signup.html</text>
+<rect x="430.0" y="195.0" width="150.0" height="46.0" rx="8" ry="8" fill="#FFE6CC" stroke="#D79B00" stroke-width="1"/>
+<text x="505.0" y="221.5" font-size="10" fill="#000000" text-anchor="middle">pin.html</text>
+<rect x="660.0" y="195.0" width="200.0" height="46.0" rx="8" ry="8" fill="#FFE6CC" stroke="#D79B00" stroke-width="1"/>
+<text x="760.0" y="221.5" font-size="10" fill="#000000" text-anchor="middle">desktop/page.js boot+router</text>
+<rect x="900.0" y="195.0" width="175.0" height="46.0" rx="8" ry="8" fill="#FFE6CC" stroke="#D79B00" stroke-width="1"/>
+<text x="987.5" y="221.5" font-size="10" fill="#000000" text-anchor="middle">mobile/page.js boot</text>
+<rect x="1100.0" y="195.0" width="160.0" height="66.0" rx="8" ry="8" fill="#FFE6CC" stroke="#D79B00" stroke-width="1"/>
+<text x="1180.0" y="231.5" font-size="10" fill="#000000" text-anchor="middle">Add/CRUD/Holding/BulkDelete modals</text>
+<rect x="660.0" y="320.0" width="200.0" height="46.0" rx="8" ry="8" fill="#FFE6CC" stroke="#D79B00" stroke-width="1"/>
+<text x="760.0" y="346.5" font-size="10" fill="#000000" text-anchor="middle">DesktopShell / MobileTabs</text>
+<rect x="900.0" y="320.0" width="175.0" height="46.0" rx="8" ry="8" fill="#FFE6CC" stroke="#D79B00" stroke-width="1"/>
+<text x="987.5" y="346.5" font-size="10" fill="#000000" text-anchor="middle">React screens on window.FC</text>
+<rect x="120.0" y="565.0" width="200.0" height="46.0" rx="8" ry="8" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="1"/>
+<text x="220.0" y="591.5" font-size="10" fill="#000000" text-anchor="middle">window.FCAuth</text>
+<rect x="620.0" y="565.0" width="200.0" height="46.0" rx="8" ry="8" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="1"/>
+<text x="720.0" y="591.5" font-size="10" fill="#000000" text-anchor="middle">window.FCStore</text>
+<rect x="920.0" y="565.0" width="175.0" height="46.0" rx="8" ry="8" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="1"/>
+<text x="1007.5" y="591.5" font-size="10" fill="#000000" text-anchor="middle">recompute</text>
+<path d="M 120.0 806.52 A 130.0 11.52 0 0 1 380.0 806.52 L 380.0 847.48 A 130.0 11.52 0 0 1 120.0 847.48 Z" fill="#D5E8D4" stroke="#82B366" stroke-width="1"/>
+<path d="M 120.0 806.52 A 130.0 11.52 0 0 0 380.0 806.52" fill="none" stroke="#82B366" stroke-width="1"/>
+<text x="250.0" y="830.5" font-size="10" fill="#000000" text-anchor="middle">fc.profiles / session / pinLocked</text>
+<path d="M 620.0 806.52 A 130.0 11.52 0 0 1 880.0 806.52 L 880.0 847.48 A 130.0 11.52 0 0 1 620.0 847.48 Z" fill="#D5E8D4" stroke="#82B366" stroke-width="1"/>
+<path d="M 620.0 806.52 A 130.0 11.52 0 0 0 880.0 806.52" fill="none" stroke="#82B366" stroke-width="1"/>
+<text x="750.0" y="830.5" font-size="10" fill="#000000" text-anchor="middle">fc.data.profileId.table</text>
+<text x="46.0" y="902.0" font-size="10" fill="#000000" text-anchor="start">Legend: solid = runtime / auth, dashed = data.</text>
+<text x="46.0" y="915.0" font-size="10" fill="#000000" text-anchor="start">Color = perimeter (P1 orange, P2 blue, P3 green).</text>
+<text x="46.0" y="928.0" font-size="10" fill="#000000" text-anchor="start">Offline only: no network flux. Detail: docs/architecture-fluxes.md (F1..F21).</text>
+</svg>

@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1290" height="830" viewBox="0 0 1290 830" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+<rect x="0" y="0" width="1290" height="830" fill="#ffffff"/>
+<rect x="40.0" y="150.0" width="1220.0" height="130.0" rx="8" ry="8" fill="#FFF7E6" stroke="#D79B00" stroke-width="2.0"/>
+<text x="650.0" y="174.0" font-size="14" fill="#9A5B00" text-anchor="middle" font-weight="bold">P1 Browser Runtime</text>
+<rect x="40.0" y="360.0" width="1220.0" height="150.0" rx="8" ry="8" fill="#EAF2FD" stroke="#6C8EBF" stroke-width="2.0"/>
+<text x="650.0" y="384.0" font-size="14" fill="#1A3C66" text-anchor="middle" font-weight="bold">P2 App Logic</text>
+<rect x="40.0" y="600.0" width="1220.0" height="120.0" rx="8" ry="8" fill="#EAF7E6" stroke="#82B366" stroke-width="2.0"/>
+<text x="650.0" y="624.0" font-size="14" fill="#2E5A1C" text-anchor="middle" font-weight="bold">P3 Local Storage</text>
+<path d="M 150.0 246.0 L 150.0 420.0" fill="none" stroke="#000000" stroke-width="1.5" stroke-dasharray="6 4"/>
+<polygon points="150.0,420.0 145.5,410.0 154.5,410.0" fill="#000000"/>
+<rect x="112.3" y="326.5" width="75.3" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="150.0" y="336.1" font-size="9" fill="#000000" text-anchor="middle">F7 seedIfEmpty</text>
+<path d="M 190.0 246.0 L 190.0 420.0 L 180.0 420.0" fill="none" stroke="#000000" stroke-width="1.5" stroke-dasharray="6 4"/>
+<polygon points="180.0,420.0 190.0,415.5 190.0,424.5" fill="#000000"/>
+<rect x="147.4" y="331.5" width="85.2" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="190.0" y="341.1" font-size="9" fill="#000000" text-anchor="middle">F8 seedFxIfEmpty</text>
+<path d="M 230.0 246.0 L 230.0 420.0 L 210.0 420.0" fill="none" stroke="#000000" stroke-width="1.5" stroke-dasharray="6 4"/>
+<polygon points="210.0,420.0 220.0,415.5 220.0,424.5" fill="#000000"/>
+<rect x="182.4" y="336.5" width="95.1" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="230.0" y="346.1" font-size="9" fill="#000000" text-anchor="middle">F10 build snapshot</text>
+<path d="M 290.0 223.0 L 330.0 223.0 L 330.0 330.0 L 640.0 330.0 L 640.0 420.0" fill="none" stroke="#000000" stroke-width="1.5" stroke-dasharray="6 4"/>
+<polygon points="640.0,420.0 635.5,410.0 644.5,410.0" fill="#000000"/>
+<rect x="411.4" y="323.5" width="90.2" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="456.5" y="333.1" font-size="9" fill="#000000" text-anchor="middle">F9 tick recurring</text>
+<path d="M 150.0 466.0 L 150.0 560.0 L 466.0 560.0 L 466.0 628.0" fill="none" stroke="#000000" stroke-width="1.5" stroke-dasharray="6 4"/>
+<polygon points="466.0,628.0 461.5,618.0 470.5,618.0" fill="#000000"/>
+<rect x="254.9" y="553.5" width="80.2" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="295.0" y="563.1" font-size="9" fill="#000000" text-anchor="middle">F10 list tables</text>
+<path d="M 230.0 466.0 L 230.0 495.0 L 824.0 495.0 L 824.0 466.0" fill="none" stroke="#000000" stroke-width="1.5" stroke-dasharray="6 4"/>
+<polygon points="824.0,466.0 828.5,476.0 819.5,476.0" fill="#000000"/>
+<rect x="494.3" y="488.5" width="65.4" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="527.0" y="498.1" font-size="9" fill="#000000" text-anchor="middle">F10 forecast</text>
+<path d="M 250.0 466.0 L 250.0 502.0 L 1024.0 502.0 L 1024.0 466.0" fill="none" stroke="#000000" stroke-width="1.5" stroke-dasharray="6 4"/>
+<polygon points="1024.0,466.0 1028.5,476.0 1019.5,476.0" fill="#000000"/>
+<rect x="619.1" y="495.5" width="35.7" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="637.0" y="505.1" font-size="9" fill="#000000" text-anchor="middle">F10 fx</text>
+<path d="M 814.0 246.0 L 815.0 330.0 L 260.0 330.0 L 260.0 420.0" fill="none" stroke="#000000" stroke-width="1.5" stroke-dasharray="6 4"/>
+<polygon points="260.0,420.0 255.5,410.0 264.5,410.0" fill="#000000"/>
+<rect x="504.3" y="323.5" width="60.5" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="534.5" y="333.1" font-size="9" fill="#000000" text-anchor="middle">F12 save tx</text>
+<path d="M 858.0 246.0 L 858.0 345.0 L 230.0 345.0 L 230.0 420.0" fill="none" stroke="#000000" stroke-width="1.5" stroke-dasharray="6 4"/>
+<polygon points="230.0,420.0 225.5,410.0 234.5,410.0" fill="#000000"/>
+<rect x="520.8" y="338.5" width="70.4" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="556.0" y="348.1" font-size="9" fill="#000000" text-anchor="middle">F13 CRUD save</text>
+<path d="M 290.0 443.0 L 370.0 443.0" fill="none" stroke="#000000" stroke-width="1.5" stroke-dasharray="6 4"/>
+<polygon points="370.0,443.0 360.0,447.5 360.0,438.5" fill="#000000"/>
+<rect x="284.9" y="436.5" width="90.2" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="330.0" y="446.1" font-size="9" fill="#000000" text-anchor="middle">F12/F13 recompute</text>
+<path d="M 190.0 466.0 L 190.0 575.0 L 538.0 575.0 L 538.0 628.0" fill="none" stroke="#000000" stroke-width="1.5" stroke-dasharray="6 4"/>
+<polygon points="538.0,628.0 533.5,618.0 542.5,618.0" fill="#000000"/>
+<rect x="295.9" y="568.5" width="80.2" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="336.0" y="578.1" font-size="9" fill="#000000" text-anchor="middle">F12/F13 persist</text>
+<path d="M 920.0 443.0 L 960.0 443.0" fill="none" stroke="#000000" stroke-width="1.5" stroke-dasharray="6 4"/>
+<polygon points="960.0,443.0 950.0,447.5 950.0,438.5" fill="#000000"/>
+<rect x="880.1" y="436.5" width="119.9" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="940.0" y="446.1" font-size="9" fill="#000000" text-anchor="middle">F15 uses direction + fx</text>
+<path d="M 856.0 466.0 L 856.0 540.0 L 210.0 540.0 L 210.0 466.0" fill="none" stroke="#000000" stroke-width="1.5" stroke-dasharray="6 4"/>
+<polygon points="210.0,466.0 214.5,476.0 205.5,476.0" fill="#000000"/>
+<rect x="495.4" y="533.5" width="75.3" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="533.0" y="543.1" font-size="9" fill="#000000" text-anchor="middle">F15 projection</text>
+<path d="M 1040.0 466.0 L 1040.0 585.0 L 1020.0 585.0 L 754.0 585.0 L 754.0 628.0" fill="none" stroke="#000000" stroke-width="1.5" stroke-dasharray="6 4"/>
+<polygon points="754.0,628.0 749.5,618.0 758.5,618.0" fill="#000000"/>
+<rect x="897.4" y="578.5" width="75.3" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="935.0" y="588.1" font-size="9" fill="#000000" text-anchor="middle">F16 rate cache</text>
+<path d="M 450.0 246.0 L 450.0 315.0 L 110.0 315.0 L 110.0 420.0" fill="none" stroke="#000000" stroke-width="1.5" stroke-dasharray="6 4"/>
+<polygon points="110.0,420.0 105.5,410.0 114.5,410.0" fill="#000000"/>
+<rect x="224.3" y="308.5" width="75.3" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="262.0" y="318.1" font-size="9" fill="#000000" text-anchor="middle">F17 import CSV</text>
+<path d="M 490.0 246.0 L 490.0 305.0 L 130.0 305.0 L 130.0 420.0" fill="none" stroke="#000000" stroke-width="1.5" stroke-dasharray="6 4"/>
+<polygon points="130.0,420.0 125.5,410.0 134.5,410.0" fill="#000000"/>
+<rect x="232.0" y="298.5" width="100.1" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="282.0" y="308.1" font-size="9" fill="#000000" text-anchor="middle">F18 export snapshot</text>
+<path d="M 530.0 246.0 L 530.0 355.0 L 190.0 355.0 L 190.0 410.0 L 190.0 420.0" fill="none" stroke="#000000" stroke-width="1.5" stroke-dasharray="6 4"/>
+<polygon points="190.0,420.0 185.5,410.0 194.5,410.0" fill="#000000"/>
+<rect x="334.4" y="348.5" width="95.1" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="382.0" y="358.1" font-size="9" fill="#000000" text-anchor="middle">F19 restore backup</text>
+<path d="M 270.0 466.0 L 270.0 583.0 L 610.0 583.0 L 610.0 628.0" fill="none" stroke="#000000" stroke-width="1.5" stroke-dasharray="6 4"/>
+<polygon points="610.0,628.0 605.5,618.0 614.5,618.0" fill="#000000"/>
+<rect x="363.9" y="576.5" width="80.2" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="404.0" y="586.1" font-size="9" fill="#000000" text-anchor="middle">F19 replace all</text>
+<path d="M 640.0 466.0 L 640.0 628.0 L 682.0 628.0" fill="none" stroke="#000000" stroke-width="1.5" stroke-dasharray="6 4"/>
+<polygon points="682.0,628.0 672.0,632.5 672.0,623.5" fill="#000000"/>
+<rect x="609.8" y="561.5" width="60.5" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="640.0" y="571.1" font-size="9" fill="#000000" text-anchor="middle">F9 post due</text>
+<rect x="90.0" y="200.0" width="200.0" height="46.0" rx="8" ry="8" fill="#FFE6CC" stroke="#D79B00" stroke-width="1"/>
+<text x="190.0" y="226.5" font-size="10" fill="#000000" text-anchor="middle">desktop/page.js boot+router</text>
+<rect x="430.0" y="200.0" width="200.0" height="46.0" rx="8" ry="8" fill="#FFE6CC" stroke="#D79B00" stroke-width="1"/>
+<text x="530.0" y="226.5" font-size="10" fill="#000000" text-anchor="middle">React screens on window.FC</text>
+<rect x="770.0" y="200.0" width="220.0" height="46.0" rx="8" ry="8" fill="#FFE6CC" stroke="#D79B00" stroke-width="1"/>
+<text x="880.0" y="226.5" font-size="10" fill="#000000" text-anchor="middle">Add/CRUD/Holding/BulkDelete modals</text>
+<rect x="90.0" y="420.0" width="200.0" height="46.0" rx="8" ry="8" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="1"/>
+<text x="190.0" y="446.5" font-size="10" fill="#000000" text-anchor="middle">window.FCStore</text>
+<rect x="370.0" y="420.0" width="160.0" height="46.0" rx="8" ry="8" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="1"/>
+<text x="450.0" y="446.5" font-size="10" fill="#000000" text-anchor="middle">recompute</text>
+<rect x="560.0" y="420.0" width="160.0" height="46.0" rx="8" ry="8" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="1"/>
+<text x="640.0" y="446.5" font-size="10" fill="#000000" text-anchor="middle">tickRecurring</text>
+<rect x="760.0" y="420.0" width="160.0" height="46.0" rx="8" ry="8" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="1"/>
+<text x="840.0" y="446.5" font-size="10" fill="#000000" text-anchor="middle">buildForecast</text>
+<rect x="960.0" y="420.0" width="160.0" height="46.0" rx="8" ry="8" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="1"/>
+<text x="1040.0" y="446.5" font-size="10" fill="#000000" text-anchor="middle">getFxRate</text>
+<path d="M 430.0 639.52 A 180.0 11.52 0 0 1 790.0 639.52 L 790.0 680.48 A 180.0 11.52 0 0 1 430.0 680.48 Z" fill="#D5E8D4" stroke="#82B366" stroke-width="1"/>
+<path d="M 430.0 639.52 A 180.0 11.52 0 0 0 790.0 639.52" fill="none" stroke="#82B366" stroke-width="1"/>
+<text x="610.0" y="663.5" font-size="10" fill="#000000" text-anchor="middle">fc.data.profileId.table  (14 tables)</text>
+<text x="46.0" y="752.0" font-size="10" fill="#000000" text-anchor="start">Legend: all edges dashed = data / persistence / money engine.</text>
+<text x="46.0" y="765.0" font-size="10" fill="#000000" text-anchor="start">Color = perimeter (P1 orange, P2 blue, P3 green). Offline only.</text>
+<text x="46.0" y="778.0" font-size="10" fill="#000000" text-anchor="start">See docs/architecture-fluxes.md and the erDiagram in the README for table relationships.</text>
+</svg>
