@@ -64,8 +64,8 @@
 <text x="740.0" y="283.6" font-size="9" fill="#000000" text-anchor="middle">F11 mount screen</text>
 <path d="M 860.0 343.0 L 900.0 343.0" fill="none" stroke="#000000" stroke-width="1.5"/>
 <polygon points="900.0,343.0 890.0,347.5 890.0,338.5" fill="#000000"/>
-<rect x="852.2" y="336.5" width="55.5" height="13.0" fill="#ffffff" opacity="0.92"/>
-<text x="880.0" y="346.1" font-size="9" fill="#000000" text-anchor="middle">F11 render</text>
+<rect x="869.6" y="336.5" width="20.9" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="880.0" y="346.1" font-size="9" fill="#000000" text-anchor="middle">F11</text>
 <path d="M 1180.0 261.0 L 1180.0 500.0 L 760.0 500.0 L 760.0 565.0" fill="none" stroke="#000000" stroke-width="1.5"/>
 <polygon points="760.0,565.0 755.5,555.0 764.5,555.0" fill="#000000"/>
 <rect x="1026.8" y="493.5" width="60.5" height="13.0" fill="#ffffff" opacity="0.92"/>
@@ -86,10 +86,10 @@
 <polygon points="780.0,241.0 790.0,236.5 790.0,245.5" fill="#000000"/>
 <rect x="752.5" y="264.0" width="95.1" height="13.0" fill="#ffffff" opacity="0.92"/>
 <text x="800.0" y="273.6" font-size="9" fill="#000000" text-anchor="middle">F20 cross-page nav</text>
-<path d="M 900.0 356.8 L 605.0 356.8 L 605.0 358.0 L 605.0 505.0 L 310.0 505.0 L 310.0 565.0" fill="none" stroke="#000000" stroke-width="1.5"/>
+<path d="M 1057.5 366.0 L 1057.0 505.0 L 310.0 505.0 L 310.0 565.0" fill="none" stroke="#000000" stroke-width="1.5"/>
 <polygon points="310.0,565.0 305.5,555.0 314.5,555.0" fill="#000000"/>
-<rect x="555.0" y="454.4" width="100.1" height="13.0" fill="#ffffff" opacity="0.92"/>
-<text x="605.0" y="464.1" font-size="9" fill="#000000" text-anchor="middle">F21 settings change</text>
+<rect x="673.0" y="498.5" width="100.1" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="723.0" y="508.1" font-size="9" fill="#000000" text-anchor="middle">F21 settings change</text>
 <path d="M 270.0 611.0 L 270.0 795.0 L 315.0 795.0" fill="none" stroke="#000000" stroke-width="1.5"/>
 <polygon points="315.0,795.0 305.0,799.5 305.0,790.5" fill="#000000"/>
 <rect x="224.9" y="719.0" width="90.2" height="13.0" fill="#ffffff" opacity="0.92"/>

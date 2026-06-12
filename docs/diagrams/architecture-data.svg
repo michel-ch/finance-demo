@@ -44,16 +44,16 @@
 <text x="556.0" y="348.1" font-size="9" fill="#000000" text-anchor="middle">F13 CRUD save</text>
 <path d="M 290.0 443.0 L 370.0 443.0" fill="none" stroke="#000000" stroke-width="1.5" stroke-dasharray="6 4"/>
 <polygon points="370.0,443.0 360.0,447.5 360.0,438.5" fill="#000000"/>
-<rect x="284.9" y="436.5" width="90.2" height="13.0" fill="#ffffff" opacity="0.92"/>
-<text x="330.0" y="446.1" font-size="9" fill="#000000" text-anchor="middle">F12/F13 recompute</text>
+<rect x="309.7" y="436.5" width="40.7" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="330.0" y="446.1" font-size="9" fill="#000000" text-anchor="middle">F12/F13</text>
 <path d="M 190.0 466.0 L 190.0 575.0 L 538.0 575.0 L 538.0 628.0" fill="none" stroke="#000000" stroke-width="1.5" stroke-dasharray="6 4"/>
 <polygon points="538.0,628.0 533.5,618.0 542.5,618.0" fill="#000000"/>
 <rect x="295.9" y="568.5" width="80.2" height="13.0" fill="#ffffff" opacity="0.92"/>
 <text x="336.0" y="578.1" font-size="9" fill="#000000" text-anchor="middle">F12/F13 persist</text>
 <path d="M 920.0 443.0 L 960.0 443.0" fill="none" stroke="#000000" stroke-width="1.5" stroke-dasharray="6 4"/>
 <polygon points="960.0,443.0 950.0,447.5 950.0,438.5" fill="#000000"/>
-<rect x="880.1" y="436.5" width="119.9" height="13.0" fill="#ffffff" opacity="0.92"/>
-<text x="940.0" y="446.1" font-size="9" fill="#000000" text-anchor="middle">F15 uses direction + fx</text>
+<rect x="929.6" y="436.5" width="20.9" height="13.0" fill="#ffffff" opacity="0.92"/>
+<text x="940.0" y="446.1" font-size="9" fill="#000000" text-anchor="middle">F15</text>
 <path d="M 856.0 466.0 L 856.0 540.0 L 210.0 540.0 L 210.0 466.0" fill="none" stroke="#000000" stroke-width="1.5" stroke-dasharray="6 4"/>
 <polygon points="210.0,466.0 214.5,476.0 205.5,476.0" fill="#000000"/>
 <rect x="495.4" y="533.5" width="75.3" height="13.0" fill="#ffffff" opacity="0.92"/>
