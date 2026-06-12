@@ -1,0 +1,40 @@
+flowchart TD
+  user([User])
+
+  subgraph P1[P1 Browser Runtime]
+    direction TB
+    runtime[Pages + Shell + Screens]
+  end
+
+  subgraph P2[P2 App Logic]
+    direction TB
+    logic[FCAuth + FCStore + Money Engine]
+  end
+
+  subgraph P3[P3 Local Storage]
+    direction TB
+    storage[(localStorage tables)]
+  end
+
+  subgraph PX[External / Network]
+    direction TB
+    none[No network - fully offline]
+  end
+
+  user -->|F1 load + session guard| runtime
+  runtime -->|F10 build live snapshot| logic
+  runtime -->|F12/F13 CRUD save| logic
+  logic -.->|F10 read tables| storage
+  logic -.->|F12/F13 persist| storage
+  runtime -->|F19 restore backup| logic
+  logic -.->|F19 replace all| storage
+  runtime -. no calls .- none
+
+  classDef p1 fill:#FFE6CC,stroke:#D79B00,color:#000;
+  classDef p2 fill:#DAE8FC,stroke:#6C8EBF,color:#000;
+  classDef p3 fill:#D5E8D4,stroke:#82B366,color:#000;
+  classDef px fill:#F5F5F5,stroke:#999999,color:#000;
+  class runtime p1;
+  class logic p2;
+  class storage p3;
+  class none px;

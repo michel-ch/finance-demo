@@ -1,0 +1,48 @@
+flowchart TD
+  subgraph P1[P1 Browser Runtime]
+    direction TB
+    dpage[desktop/page.js boot + router]
+    screens[React screens on window.FC]
+    modals[Add / CRUD / Holding / BulkDelete modals]
+  end
+
+  subgraph P2[P2 App Logic]
+    direction TB
+    store[window.FCStore]
+    engine_fx[getFxRate]
+    engine_forecast[buildForecast]
+    engine_recompute[recompute]
+    engine_recurring[tickRecurring]
+  end
+
+  subgraph P3[P3 Local Storage]
+    direction TB
+    ls_data[(fc.data.profileId.table - 14 tables)]
+  end
+
+  dpage -.->|F7 seedIfEmpty| store
+  dpage -.->|F8 seedFxIfEmpty| store
+  dpage -.->|F9 tick recurring| engine_recurring
+  dpage -.->|F10 build snapshot| store
+  store -.->|F10 list tables| ls_data
+  store -.->|F10 forecast| engine_forecast
+  store -.->|F10 fx| engine_fx
+  modals -.->|F12 save tx| store
+  modals -.->|F13 CRUD save| store
+  store -.->|F12/F13 recompute| engine_recompute
+  store -.->|F12/F13 persist| ls_data
+  engine_forecast -.->|F15 uses direction + fx| engine_fx
+  engine_forecast -.->|F15 projection| store
+  engine_fx -.->|F16 rate cache| ls_data
+  screens -.->|F17 import CSV| store
+  screens -.->|F18 export snapshot| store
+  screens -.->|F19 restore backup| store
+  store -.->|F19 replace all| ls_data
+  engine_recurring -.->|F9 post due| ls_data
+
+  classDef p1 fill:#FFE6CC,stroke:#D79B00,color:#000;
+  classDef p2 fill:#DAE8FC,stroke:#6C8EBF,color:#000;
+  classDef p3 fill:#D5E8D4,stroke:#82B366,color:#000;
+  class dpage,screens,modals p1;
+  class store,engine_fx,engine_forecast,engine_recompute,engine_recurring p2;
+  class ls_data p3;

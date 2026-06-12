@@ -1,0 +1,58 @@
+flowchart TD
+  user([User])
+
+  subgraph P1[P1 Browser Runtime]
+    direction TB
+    login[login.html]
+    signup[signup.html]
+    pin[pin.html]
+    dpage[desktop/page.js boot + router]
+    mpage[mobile/page.js boot]
+    shell[DesktopShell / MobileTabs]
+    screens[React screens on window.FC]
+    modals[Add / CRUD / Holding / BulkDelete modals]
+  end
+
+  subgraph P2[P2 App Logic]
+    direction TB
+    auth[window.FCAuth]
+    store[window.FCStore]
+    engine_recompute[recompute]
+  end
+
+  subgraph P3[P3 Local Storage]
+    direction TB
+    ls_auth[(fc.profiles / session / pinLocked)]
+    ls_data[(fc.data.profileId.table)]
+  end
+
+  user -->|F1 load + guard| dpage
+  user -->|F1 load + guard| mpage
+  dpage -->|F1 requireSession| auth
+  mpage -->|F1 requireSession| auth
+  signup -->|F2 signup hash| auth
+  auth -->|F2 write profile| ls_auth
+  login -->|F3 login verify| auth
+  auth -->|F3 write session| ls_auth
+  screens -->|F4 set/verify PIN| auth
+  auth -->|F4 PIN store| ls_auth
+  pin -->|F5 unlock gate| auth
+  dpage -->|F6 idle auto-lock| auth
+  dpage -->|F10 build snapshot| store
+  dpage -->|F11 mount screen| shell
+  shell -->|F11 render| screens
+  modals -->|F12 save tx| store
+  modals -->|F13 CRUD save| store
+  store -->|F12/F13 recompute| engine_recompute
+  screens -->|F14 bulk delete| store
+  shell -->|F20 cross-page nav| dpage
+  screens -->|F21 settings change| auth
+  auth -->|F21 updateProfile| ls_auth
+  store -.->|F10 read tables| ls_data
+
+  classDef p1 fill:#FFE6CC,stroke:#D79B00,color:#000;
+  classDef p2 fill:#DAE8FC,stroke:#6C8EBF,color:#000;
+  classDef p3 fill:#D5E8D4,stroke:#82B366,color:#000;
+  class login,signup,pin,dpage,mpage,shell,screens,modals p1;
+  class auth,store,engine_recompute p2;
+  class ls_auth,ls_data p3;
