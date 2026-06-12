@@ -149,7 +149,10 @@
       var cards = this.list('cards');
       var goals = this.list('goals');
       var budgets = this.list('budgets');
-      var thisMonth = new Date().toISOString().slice(0, 7);
+      // Local calendar month (YYYY-MM). toISOString() is UTC and would bucket
+      // cards/cap-spend into the wrong month on the boundary day in non-UTC zones,
+      // while budgets compare the local t.date string — keep them consistent.
+      var thisMonth = ymdLocal(new Date()).slice(0, 7);
 
       // True iff the change came from this table on a different row — in that
       // case we leave the row alone so the user only sees what they touched move.
@@ -302,6 +305,7 @@
       this.set('accounts', (data.accounts || []).map(function (a) {
         return Object.assign({}, a, { archived: false, openingBalance: a.balance, openingDate: nowIso });
       }));
+      this.set('cards', data.cards || []);
 
       this.set('transactions', (data.transactions || []).map(function (t) {
         var catId = (cats.find(function (c) { return c.name.toLowerCase() === (t.category || '').toLowerCase(); }) || {}).id;
@@ -309,7 +313,7 @@
           amountOriginal: t.amount,
           currencyOriginal: t.currency,
           amountBase: t.currencyConverted != null ? t.currencyConverted : t.amount,
-          fxRateSnapshot: t.currencyConverted != null ? Math.abs(t.currencyConverted / t.amount) : 1,
+          fxRateSnapshot: (t.currencyConverted != null && t.amount) ? Math.abs(t.currencyConverted / t.amount) : 1,
           categoryId: catId || null,
         });
       }));
@@ -317,7 +321,7 @@
       this.set('goals', data.goals || []);
       this.set('budgets', (data.budgets || []).map(function (b) {
         var catId = (cats.find(function (c) { return c.name.toLowerCase() === (b.cat || '').toLowerCase(); }) || {}).id;
-        return Object.assign({}, b, { categoryId: catId, month: new Date().toISOString().slice(0, 7), currency: 'EUR', rollover: false });
+        return Object.assign({}, b, { categoryId: catId, month: ymdLocal(new Date()).slice(0, 7), currency: 'EUR', rollover: false });
       }));
       this.set('recurring', (data.bills || []).map(function (b) {
         return {

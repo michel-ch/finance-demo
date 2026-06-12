@@ -690,6 +690,7 @@ function MobileAddForm({ onNav, data }) {
     if (!accountId) { setErr('Add an account first.'); return; }
     const acc = accounts.find(a => a.id === accountId);
     const isBase = currency === baseCurrency;
+    const fxRate = window.FCStore.getFxRate(currency, baseCurrency);
     window.FCStore.create('transactions', {
       accountId,
       account: acc ? acc.name : '',
@@ -704,9 +705,9 @@ function MobileAddForm({ onNav, data }) {
       amountOriginal: -Math.abs(numeric),
       currency,
       currencyOriginal: currency,
-      amountBase: isBase ? -Math.abs(numeric) : -Math.abs(numeric),
-      fxRateSnapshot: 1,
-      currencyConverted: isBase ? null : -Math.abs(numeric),
+      amountBase: isBase ? -Math.abs(numeric) : -Math.abs(numeric) * fxRate,
+      fxRateSnapshot: fxRate,
+      currencyConverted: isBase ? null : -Math.abs(numeric) * fxRate,
       pending: false,
     });
     window.dispatchEvent(new Event('fc:tx-saved'));

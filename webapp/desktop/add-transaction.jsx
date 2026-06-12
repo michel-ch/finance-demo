@@ -246,12 +246,14 @@ window.FC.AddTransactionModal = function AddTransactionModal() {
       else FC.create('transactions', baseSnapshot);
     }
 
-    if (isRecurring) {
-      // Best-effort: also create a Recurring rule. Source-of-truth screen is §18.6.
+    if (isRecurring && !editId) {
+      // Best-effort: create a Recurring rule for NEW transactions only — editing must
+      // not fork a duplicate. Source-of-truth screen is §18.6.
       try {
         FC.create('recurring', {
           name: baseSnapshot.merchant,
           amount: Math.abs(numeric),
+          direction: sign === '+' ? 'in' : 'out',
           currency: currency,
           freq: recurringFreq,
           nextDate: date,
